@@ -1,8 +1,8 @@
 import serverRequestor from '../httpInterflower/requestor-server';
-import {packIn, unpackOut} from './simpleDataProcessor';
+import simple from './simple';
 
 module.exports = (options = {}) => (apiName) =>
     (...ins) => serverRequestor(
-        packIn,
-        unpackOut,
+        simple.getPackIn(),
+        simple.getUnpackOut(),
         options)(apiName, options, ins);
