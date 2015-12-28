@@ -1,0 +1,37 @@
+{
+  "name": "cl-interflow",
+  "version": "0.0.1",
+  "description": "Define A Simple Protocol For Interflow Based On Function.",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel": "^6.3.26",
+    "babel-cli": "^6.3.17",
+    "babel-core": "^6.3.26",
+    "babel-polyfill": "^6.3.14",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-stage-0": "^6.3.13",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^6.1.1",
+    "mocha": "^2.3.4"
+  },
+  "scripts": {
+    "test": "mocha --compilers js:babel-core/register test/**/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoveKino/cl-interflow.git"
+  },
+  "keywords": [
+    "interflow",
+    "function",
+    "caller",
+    "dealer"
+  ],
+  "author": "ddchen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LoveKino/cl-interflow/issues"
+  },
+  "homepage": "https://github.com/LoveKino/cl-interflow#readme"
+}
