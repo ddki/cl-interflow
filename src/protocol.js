@@ -29,7 +29,7 @@
  * packIn::: ins -> rawIn
  *
  * unpackIn::: rawIn -> [ins]
- *
+  *
  * packOut::: out -> rawOut
  *
  * unpackOut::: rawOut -> out
@@ -90,7 +90,6 @@ let dealer = (unpackIn = id, packOut = id) => {
         });
     };
 };
-
 let isPromise = (v) => v instanceof Promise ||
     (v && typeof v === 'object' && typeof v.then === 'function'
         && typeof v.catch === 'function');
