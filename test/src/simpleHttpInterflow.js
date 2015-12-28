@@ -7,15 +7,15 @@ require('babel-polyfill');
 
 describe('protocol', () => {
     it('simple interflow', (done) => {
+        let methodMap = {
+            'add': (a, b) => a + b
+        };
+
+        let midGen = responser((apiName) => methodMap[apiName], {
+            output: true
+        });
+
         let server = http.createServer((req, res) => {
-            let methodMap = {
-                'add': (a, b) => a + b
-            };
-
-            let midGen = responser((apiName) => methodMap[apiName], {
-                output: true
-            });
-
             let chunks = [];
             req.on('data', (chunk) => {
                 chunks.push(chunk);

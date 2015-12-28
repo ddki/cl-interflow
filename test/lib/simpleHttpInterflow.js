@@ -24,19 +24,19 @@ require('babel-polyfill');
 
 describe('protocol', function () {
     it('simple interflow', function (done) {
+        var methodMap = {
+            'add': function add(a, b) {
+                return a + b;
+            }
+        };
+
+        var midGen = (0, _responser2.default)(function (apiName) {
+            return methodMap[apiName];
+        }, {
+            output: true
+        });
+
         var server = _http2.default.createServer(function (req, res) {
-            var methodMap = {
-                'add': function add(a, b) {
-                    return a + b;
-                }
-            };
-
-            var midGen = (0, _responser2.default)(function (apiName) {
-                return methodMap[apiName];
-            }, {
-                output: true
-            });
-
             var chunks = [];
             req.on('data', function (chunk) {
                 chunks.push(chunk);
