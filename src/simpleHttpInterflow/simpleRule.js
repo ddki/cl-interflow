@@ -6,7 +6,7 @@ let def = (m1 = {}, m2 = {}) => {
 };
 
 module.exports = {
-    packInGen: (apiName, options) => (ins) => {
+    packIn: (apiName, options, ins) => {
         return {
             options: def({
                 headers: {},

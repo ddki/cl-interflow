@@ -21,12 +21,13 @@
  * |                                   out -> rawOut |
  * | rawOut       <-------------------        rawOut |
  * | rawOut -> out                                   |
- * | out
- * ```
+ * | out                                             |
  *
  * ```
  *
- * packIn::: ins -> rawIn
+ * ```
+ *
+ * packIn::: ...ins -> rawIn
  *
  * unpackIn::: rawIn -> [ins]
  *
@@ -47,14 +48,21 @@
  *
  * ```
  *
+ * ```
+ *
+ * define data processor
+ *
+ * { packIn, unpackIn, packOut, unpackOut }
+ *
+ * ```
  */
-let caller = (packIn = id, unpackOut = id) => {
+let caller = (packIn = defPackIn, unpackOut = id) => {
     checkFun(packIn, 'packIn');
     checkFun(unpackOut, 'unpackOut');
     return (connect) => {
         checkFun(connect, 'connect');
-        return (...ins) => new Promise((resolve, reject)=>{
-            let rawIn = packIn(ins);
+        return (...ins) => new Promise((resolve, reject) => {
+            let rawIn = packIn.apply(undefined, ins);
             // connect may be async
             let rawOut = connect(rawIn);
             if(isPromise(rawOut)) {
@@ -94,6 +102,8 @@ let dealer = (unpackIn = id, packOut = id) => {
 let isPromise = (v) => v instanceof Promise ||
     (v && typeof v === 'object' && typeof v.then === 'function'
         && typeof v.catch === 'function');
+
+let defPackIn = (...ins) => ins;
 
 let id = v => v;
 

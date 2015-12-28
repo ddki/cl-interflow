@@ -25,17 +25,14 @@ describe('protocol', () => {
 
         let deal = protocol.dealer(unpackIn, packOut)(methodFinder);
 
-        let callGen = (type) => {
-            let packIn = (ins) => [type, ins];
-            let unpackOut = v => v;
+        let packIn = (type, args) => [type, args];
+        let unpackOut = v => v;
 
-            let connect = deal;
+        let connect = deal;
 
-            let call = protocol.caller(packIn, unpackOut)(connect);
-            return call;
-        };
+        let call = protocol.caller(packIn, unpackOut)(connect);
 
-        let res = await callGen('add')(1, 2);
+        let res = await call('add', [1, 2]);
         assert.equal(res, 3);
     });
 });

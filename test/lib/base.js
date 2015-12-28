@@ -45,7 +45,7 @@ describe('protocol', function () {
     })));
 
     it('map function', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
-        var methodMap, unpackIn, packOut, methodFinder, deal, callGen, res;
+        var methodMap, unpackIn, packOut, methodFinder, deal, packIn, unpackOut, connect, call, res;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
             while (1) {
                 switch (_context2.prev = _context2.next) {
@@ -70,29 +70,25 @@ describe('protocol', function () {
 
                         deal = _index.protocol.dealer(unpackIn, packOut)(methodFinder);
 
-                        callGen = function callGen(type) {
-                            var packIn = function packIn(ins) {
-                                return [type, ins];
-                            };
-                            var unpackOut = function unpackOut(v) {
-                                return v;
-                            };
-
-                            var connect = deal;
-
-                            var call = _index.protocol.caller(packIn, unpackOut)(connect);
-                            return call;
+                        packIn = function packIn(type, args) {
+                            return [type, args];
                         };
 
-                        _context2.next = 8;
-                        return callGen('add')(1, 2);
+                        unpackOut = function unpackOut(v) {
+                            return v;
+                        };
 
-                    case 8:
+                        connect = deal;
+                        call = _index.protocol.caller(packIn, unpackOut)(connect);
+                        _context2.next = 11;
+                        return call('add', [1, 2]);
+
+                    case 11:
                         res = _context2.sent;
 
                         _assert2.default.equal(res, 3);
 
-                    case 10:
+                    case 13:
                     case 'end':
                         return _context2.stop();
                 }
