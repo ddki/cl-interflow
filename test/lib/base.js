@@ -12,7 +12,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 require('babel-polyfill');
 
-describe('processor', function () {
+describe('protocol', function () {
     it('simple interflow', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
         var methodFinder, del, connect, cal, res;
         return regeneratorRuntime.wrap(function _callee$(_context) {
@@ -25,9 +25,9 @@ describe('processor', function () {
                             };
                         };
 
-                        del = _index.processor.dealer()(methodFinder);
+                        del = _index.protocol.dealer()(methodFinder);
                         connect = del;
-                        cal = _index.processor.caller()(connect);
+                        cal = _index.protocol.caller()(connect);
                         _context.next = 6;
                         return cal(1, 2);
 
@@ -68,14 +68,10 @@ describe('processor', function () {
                             return methodMap[rawIn[0]];
                         };
 
-                        deal = _index.processor.dealer(unpackIn, packOut)(methodFinder);
+                        deal = _index.protocol.dealer(unpackIn, packOut)(methodFinder);
 
                         callGen = function callGen(type) {
-                            var packIn = function packIn() {
-                                for (var _len = arguments.length, ins = Array(_len), _key = 0; _key < _len; _key++) {
-                                    ins[_key] = arguments[_key];
-                                }
-
+                            var packIn = function packIn(ins) {
                                 return [type, ins];
                             };
                             var unpackOut = function unpackOut(v) {
@@ -84,7 +80,7 @@ describe('processor', function () {
 
                             var connect = deal;
 
-                            var call = _index.processor.caller(packIn, unpackOut)(connect);
+                            var call = _index.protocol.caller(packIn, unpackOut)(connect);
                             return call;
                         };
 

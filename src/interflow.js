@@ -1,5 +1,5 @@
-import processor from './processor';
+import protocol from './protocol';
 
 module.exports = {
-    processor
+    protocol
 };

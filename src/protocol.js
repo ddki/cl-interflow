@@ -26,7 +26,7 @@
  *
  * ```
  *
- * packIn::: ...ins -> rawIn
+ * packIn::: ins -> rawIn
  *
  * unpackIn::: rawIn -> [ins]
  *
@@ -43,18 +43,18 @@
  *
  * caller::: (packIn, unpackOut) -> connect -> ...ins -> out
  *
- * dealer::: (unpackIn, packOut) -> (method) -> rawIn -> rawOut
+ * dealer::: (unpackIn, packOut) -> (methodFinder) -> rawIn -> rawOut
  *
  * ```
  *
  */
-let caller = (packIn = defPackIn, unpackOut = id) => {
+let caller = (packIn = id, unpackOut = id) => {
     checkFun(packIn, 'packIn');
     checkFun(unpackOut, 'unpackOut');
     return (connect) => {
         checkFun(connect, 'connect');
         return (...ins) => new Promise((resolve, reject)=>{
-            let rawIn = packIn.apply(undefined, ins);
+            let rawIn = packIn(ins);
             // connect may be async
             let rawOut = connect(rawIn);
             if(isPromise(rawOut)) {
@@ -94,8 +94,6 @@ let dealer = (unpackIn = id, packOut = id) => {
 let isPromise = (v) => v instanceof Promise ||
     (v && typeof v === 'object' && typeof v.then === 'function'
         && typeof v.catch === 'function');
-
-let defPackIn = (...ins) => ins;
 
 let id = v => v;
 

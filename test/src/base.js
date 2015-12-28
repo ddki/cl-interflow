@@ -1,15 +1,15 @@
-import { processor } from '../../index';
+import { protocol } from '../../index';
 import assert from 'assert';
 require('babel-polyfill');
 
-describe('processor', () => {
+describe('protocol', () => {
     it('simple interflow', async () => {
         let methodFinder = () => (a, b) => a + b;
-        let del = processor.dealer()(methodFinder);
+        let del = protocol.dealer()(methodFinder);
 
         let connect = del;
 
-        let cal = processor.caller()(connect);
+        let cal = protocol.caller()(connect);
 
         let res = await cal(1, 2);
         assert.equal(res, 3);
@@ -23,15 +23,15 @@ describe('processor', () => {
         let packOut = v => v;
         let methodFinder = (rawIn) => methodMap[rawIn[0]];
 
-        let deal = processor.dealer(unpackIn, packOut)(methodFinder);
+        let deal = protocol.dealer(unpackIn, packOut)(methodFinder);
 
         let callGen = (type) => {
-            let packIn = (...ins) => [type, ins];
+            let packIn = (ins) => [type, ins];
             let unpackOut = v => v;
 
             let connect = deal;
 
-            let call = processor.caller(packIn, unpackOut)(connect);
+            let call = protocol.caller(packIn, unpackOut)(connect);
             return call;
         };
 
