@@ -5,7 +5,7 @@ import http from 'http';
 
 require('babel-polyfill');
 
-describe('protocol', () => {
+describe('simple http interflow', () => {
     it('simple interflow', (done) => {
         let methodMap = {
             'add': (a, b) => a + b

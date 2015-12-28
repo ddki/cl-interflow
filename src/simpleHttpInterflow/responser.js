@@ -1,5 +1,7 @@
 import responser from '../httpInterflower/responser';
-import simpleRule from './simpleRule';
+import simple from './simple';
+
+console.log(simple.getUnpackIn);
 
 module.exports = (getMethod, opts = {}) => {
     let methodFinder = (rawIn) => {
@@ -7,5 +9,5 @@ module.exports = (getMethod, opts = {}) => {
         return getMethod(apiName, rawIn);
     };
 
-    return responser(simpleRule.unpackIn, simpleRule.packOut, methodFinder, opts);
+    return responser(simple.getUnpackIn(), simple.getPackOut(), methodFinder, opts);
 };

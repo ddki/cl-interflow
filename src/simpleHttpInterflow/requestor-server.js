@@ -1,8 +1,8 @@
 import serverRequestor from '../httpInterflower/requestor-server';
-import simpleRule from './simpleRule';
+import simple from './simple';
 
 module.exports = (options = {}) => (apiName) =>
-    serverRequestor(
-        simpleRule.packInGen(apiName, options),
-        simpleRule.unpackOut,
-        options);
+    (...ins) => serverRequestor(
+        simple.getPackIn(),
+        simple.getUnpackOut(),
+        options)(apiName, options, ins);

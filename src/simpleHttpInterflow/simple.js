@@ -1,3 +1,5 @@
+import Processor from '../processor';
+
 let def = (m1 = {}, m2 = {}) => {
     for (let name in m2) {
         m1[name] = m2[name];
@@ -5,8 +7,8 @@ let def = (m1 = {}, m2 = {}) => {
     return m1;
 };
 
-module.exports = {
-    packInGen: (apiName, options) => (ins) => {
+module.exports = new Processor({
+    packIn: (apiName, options, ins) => {
         return {
             options: def({
                 headers: {},
@@ -23,4 +25,4 @@ module.exports = {
         };
     },
     unpackOut: (rawOut) => rawOut.body
-};
+});

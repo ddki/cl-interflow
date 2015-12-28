@@ -22,7 +22,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 require('babel-polyfill');
 
-describe('protocol', function () {
+describe('simple http interflow', function () {
     it('simple interflow', function (done) {
         var methodMap = {
             'add': function add(a, b) {
