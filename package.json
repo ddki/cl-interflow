@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LoveKino/cl-interflow.git"
+    "url": "git+https://github.com/ddki/cl-interflow/cl-interflow.git"
   },
   "keywords": [
     "interflow",
@@ -34,9 +34,9 @@
   "author": "ddchen",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/LoveKino/cl-interflow/issues"
+    "url": "https://github.com/ddki/cl-interflow/cl-interflow/issues"
   },
-  "homepage": "https://github.com/LoveKino/cl-interflow#readme",
+  "homepage": "https://github.com/ddki/cl-interflow/cl-interflow#readme",
   "eslintConfig": {
     "globals": {
       "describe": true,
