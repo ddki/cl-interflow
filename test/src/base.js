@@ -5,8 +5,8 @@ require('babel-polyfill');
 
 describe('protocol', () => {
     it('simple interflow', async () => {
-        let methodFinder = () => (a, b) => a + b;
-        let del = protocol.dealer()(methodFinder);
+        let method = (a, b) => a + b;
+        let del = protocol.dealer()(method);
 
         let connect = del;
 
@@ -20,11 +20,14 @@ describe('protocol', () => {
         let methodMap = {
             'add': (a, b) => a + b
         };
-        let unpackIn = v => v[1];
+        let unpackIn = v => v;
         let packOut = v => v;
-        let methodFinder = (rawIn) => methodMap[rawIn[0]];
 
-        let deal = protocol.dealer(unpackIn, packOut)(methodFinder);
+        let method = (type, args) => {
+            return methodMap[type].apply(undefined, args);
+        };
+
+        let deal = protocol.dealer(unpackIn, packOut)(method);
 
         let packIn = (type, args) => [type, args];
         let unpackOut = v => v;

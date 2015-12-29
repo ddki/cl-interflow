@@ -30,10 +30,12 @@ describe('simple http interflow', () => {
             'add': (a, b) => a + b
         };
 
-        let methodFinder = (rawIn) => methodMap[rawIn.body[0]];
+        let method = (type, args) => {
+            return methodMap[type].apply(undefined, args);
+        };
 
         let midGen = interflow.responsers.httpResponser(
-            processor, methodFinder, {
+            processor, method, {
                 output: true
             });
 
@@ -52,8 +54,8 @@ describe('simple http interflow', () => {
             port
         }, 'add', [a, b]);
 
-        let ret = await remoteAdd(1, 2);
+        let ret = await remoteAdd(2, 4);
 
-        assert.equal(ret, 3);
+        assert.equal(ret, 6);
     });
 });

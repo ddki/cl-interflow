@@ -14,18 +14,16 @@ require('babel-polyfill');
 
 describe('protocol', function () {
     it('simple interflow', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
-        var methodFinder, del, connect, cal, res;
+        var method, del, connect, cal, res;
         return regeneratorRuntime.wrap(function _callee$(_context) {
             while (1) {
                 switch (_context.prev = _context.next) {
                     case 0:
-                        methodFinder = function methodFinder() {
-                            return function (a, b) {
-                                return a + b;
-                            };
+                        method = function method(a, b) {
+                            return a + b;
                         };
 
-                        del = _index.protocol.dealer()(methodFinder);
+                        del = _index.protocol.dealer()(method);
                         connect = del;
                         cal = _index.protocol.caller()(connect);
                         _context.next = 6;
@@ -45,7 +43,7 @@ describe('protocol', function () {
     })));
 
     it('map function', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
-        var methodMap, unpackIn, packOut, methodFinder, deal, packIn, unpackOut, connect, call, res;
+        var methodMap, unpackIn, packOut, method, deal, packIn, unpackOut, connect, call, res;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
             while (1) {
                 switch (_context2.prev = _context2.next) {
@@ -57,18 +55,18 @@ describe('protocol', function () {
                         };
 
                         unpackIn = function unpackIn(v) {
-                            return v[1];
+                            return v;
                         };
 
                         packOut = function packOut(v) {
                             return v;
                         };
 
-                        methodFinder = function methodFinder(rawIn) {
-                            return methodMap[rawIn[0]];
+                        method = function method(type, args) {
+                            return methodMap[type].apply(undefined, args);
                         };
 
-                        deal = _index.protocol.dealer(unpackIn, packOut)(methodFinder);
+                        deal = _index.protocol.dealer(unpackIn, packOut)(method);
 
                         packIn = function packIn(type, args) {
                             return [type, args];

@@ -35,8 +35,6 @@
  *
  * unpackOut::: rawOut -> out
  *
- * methodFinder::: rawIn -> method
- *
  * method::: ...ins -> out
  *
  * connect::: rawIn -> rawout
@@ -46,7 +44,7 @@
  *
  * caller::: (packIn, unpackOut) -> connect -> ...ins -> out
  *
- * dealer::: (unpackIn, packOut) -> (methodFinder) -> (rawIn, flush) -> rawOut
+ * dealer::: (unpackIn, packOut) -> (method) -> (rawIn, flush) -> rawOut
  *
  * ```
  *
@@ -81,11 +79,9 @@ let caller = (packIn = defPackIn, unpackOut = id) => {
 let dealer = (unpackIn = id, packOut = id) => {
     checkFun(unpackIn, 'unpackIn');
     checkFun(packOut, 'packOut');
-    return (methodFinder) => {
-        checkFun(methodFinder, 'methodFinder');
+    return (method) => {
+        checkFun(method, 'method');
         return (rawIn, flush) => new Promise((resolve, reject) => {
-            // find the right method to deal with in
-            let method = methodFinder(rawIn);
             let ins = unpackIn(rawIn);
             // in dealing method may be async
             let out = method.apply(undefined, ins);

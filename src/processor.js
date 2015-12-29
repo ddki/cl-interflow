@@ -1,10 +1,14 @@
 import protocol from './protocol';
 
+let id = v => v;
+
+let defPackIn = (...ins) => ins;
+
 let Processor = function ({ packIn, unpackIn, packOut, unpackOut }) {
-    this.packIn = packIn;
-    this.unpackIn = unpackIn;
-    this.packOut = packOut;
-    this.unpackOut = unpackOut;
+    this.packIn = packIn || defPackIn;
+    this.unpackIn = unpackIn || id;
+    this.packOut = packOut || id;
+    this.unpackOut = unpackOut || id;
 };
 
 Processor.prototype = {

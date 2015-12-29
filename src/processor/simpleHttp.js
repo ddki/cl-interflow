@@ -18,7 +18,9 @@ module.exports = new Processor({
             body: [apiName, ins]
         };
     },
-    unpackIn: (rawIn) => rawIn.body[1],
+    unpackIn: (rawIn) => {
+        return rawIn.body;
+    },
     packOut: (out) => {
         return {
             body: out

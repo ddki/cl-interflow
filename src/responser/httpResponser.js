@@ -1,3 +1,22 @@
+import Processor from '../processor';
+
+let lowProcessor = new Processor({
+    packIn: v => v,
+    unpackIn: ({req, body}) => {
+        body = body ? JSON.parse(body + '') : '';
+        // console.log(body);
+        let rawIn = {
+            options: {
+                url: req.url,
+                method: req.method,
+                headers: req.headers
+            },
+            body
+        };
+        return rawIn;
+    }
+});
+
 /**
  * packOut out -> rawOut
  *
@@ -5,19 +24,10 @@
  * rawOut = {headers, body}
  */
 module.exports = (processor, methodFinder, opts = {}) => {
+    processor = processor.pack(lowProcessor);
     let response = processor.getDealer(methodFinder);
 
     return (req, res, body) => {
-        body = body ? JSON.parse(body + '') : '';
-        let rawIn = {
-            options: {
-                url: req.url,
-                method: req.method,
-                headers: req.headers
-            },
-            body: body
-        };
-
         let flush = (rawOut) => {
             if(opts.output) {
                 let outBody = rawOut.body ? JSON.stringify(rawOut.body) : '';
@@ -30,6 +40,7 @@ module.exports = (processor, methodFinder, opts = {}) => {
             }
         };
 
-        response(rawIn, flush);
+        // body = body ? JSON.parse(body + '') : '';
+        response({req, body}, flush);
     };
 };
