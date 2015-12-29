@@ -21,7 +21,7 @@ module.exports = (processor, methodFinder, opts = {}) => {
         response(rawIn).then(rawOut => {
             if(opts.output) {
                 let outBody = rawOut.body ? JSON.stringify(rawOut.body) : '';
-                let outHeaders = outBody.headers;
+                let outHeaders = rawOut.headers;
                 if(outBody.headers) {
                     res.writeHeade(200, outHeaders);
                 }
