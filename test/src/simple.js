@@ -28,15 +28,15 @@ describe('simple http interflow', () => {
             processors.httpReqProcessor
         );
 
+        // create response
         let methodMap = {
             'add': (a, b) => a + b
         };
-
-        // create response
         let response = processor.getDealer(
             (ins) => methodMap[ins[0]].apply(undefined, ins[1])
         );
 
+        // create http server
         let server = http.createServer(async (req, res) => {
             let body = await getReqBody(req);
             // deal request
@@ -46,9 +46,12 @@ describe('simple http interflow', () => {
         await listen(server, 0);
 
         let port = server.address().port;
-        let httpConnect = connects.httpConnect;
 
-        let remoteAdd = async (a, b) => await processor.getCaller(httpConnect)({
+        let request = processor.getCaller(
+            connects.httpConnect
+        );
+
+        let remoteAdd = async (a, b) => await request({
             options: {
                 hostname: '127.0.0.1',
                 port
