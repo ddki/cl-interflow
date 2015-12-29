@@ -8,7 +8,7 @@ let def = (m1 = {}, m2 = {}) => {
 };
 
 module.exports = new Processor({
-    packIn: (options, apiName, ins) => {
+    packIn: ({options, apiName, ins}) => {
         return {
             options: def({
                 headers: {},

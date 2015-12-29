@@ -5,14 +5,14 @@ require('babel-polyfill');
 
 describe('protocol', () => {
     it('simple interflow', async () => {
-        let method = (a, b) => a + b;
+        let method = (ins) => ins[0] + ins[1];
         let del = protocol.dealer()(method);
 
         let connect = del;
 
         let cal = protocol.caller()(connect);
 
-        let res = await cal(1, 2);
+        let res = await cal([1, 2]);
         assert.equal(res, 3);
     });
 
@@ -23,20 +23,18 @@ describe('protocol', () => {
         let unpackIn = v => v;
         let packOut = v => v;
 
-        let method = (type, args) => {
+        let method = (ins) => {
+            let type = ins[0], args = ins[1];
             return methodMap[type].apply(undefined, args);
         };
 
         let deal = protocol.dealer(unpackIn, packOut)(method);
 
-        let packIn = (type, args) => [type, args];
-        let unpackOut = v => v;
-
         let connect = deal;
 
-        let call = protocol.caller(packIn, unpackOut)(connect);
+        let call = protocol.caller()(connect);
 
-        let res = await call('add', [1, 2]);
+        let res = await call(['add', [1, 2]]);
         assert.equal(res, 3);
     });
 });

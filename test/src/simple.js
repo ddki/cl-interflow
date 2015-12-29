@@ -1,6 +1,6 @@
 import assert from 'assert';
 import http from 'http';
-import interflow from '../../index';
+import {processors, connects, flushers} from '../../index';
 require('babel-polyfill');
 
 let listen = (server, port) => new Promise((resolve) => {
@@ -23,38 +23,39 @@ let getReqBody = (req) => new Promise((r) => {
 
 describe('simple http interflow', () => {
     it('simple interflow', async () => {
-        let processor = interflow.processors.simpleHttp.pack(
-            interflow.processors.httpReqProcessor
+        // assemble processors
+        let processor = processors.simpleHttp.pack(
+            processors.httpReqProcessor
         );
 
         let methodMap = {
             'add': (a, b) => a + b
         };
 
-        let method = (type, args) => {
-            return methodMap[type].apply(undefined, args);
-        };
-
-        let response = processor.getDealer(method);
-
-        let midGen = (req, res, body) => {
-            response({req, body}, interflow.flushers.resFlusher(res));
-        };
+        // create response
+        let response = processor.getDealer(
+            (ins) => methodMap[ins[0]].apply(undefined, ins[1])
+        );
 
         let server = http.createServer(async (req, res) => {
             let body = await getReqBody(req);
-            midGen(req, res, body);
+            // deal request
+            response({req, body}, flushers.resFlusher(res));
         });
 
         await listen(server, 0);
 
         let port = server.address().port;
-        let httpConnect = interflow.connects.httpConnect;
+        let httpConnect = connects.httpConnect;
 
         let remoteAdd = async (a, b) => await processor.getCaller(httpConnect)({
-            hostname: '127.0.0.1',
-            port
-        }, 'add', [a, b]);
+            options: {
+                hostname: '127.0.0.1',
+                port
+            },
+            apiName: 'add',
+            ins: [a, b]
+        });
 
         let ret = await remoteAdd(2, 4);
 

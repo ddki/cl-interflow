@@ -19,15 +19,15 @@ describe('protocol', function () {
             while (1) {
                 switch (_context.prev = _context.next) {
                     case 0:
-                        method = function method(a, b) {
-                            return a + b;
+                        method = function method(ins) {
+                            return ins[0] + ins[1];
                         };
 
                         del = _index.protocol.dealer()(method);
                         connect = del;
                         cal = _index.protocol.caller()(connect);
                         _context.next = 6;
-                        return cal(1, 2);
+                        return cal([1, 2]);
 
                     case 6:
                         res = _context.sent;
@@ -43,7 +43,7 @@ describe('protocol', function () {
     })));
 
     it('map function', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
-        var methodMap, unpackIn, packOut, method, deal, packIn, unpackOut, connect, call, res;
+        var methodMap, unpackIn, packOut, method, deal, connect, call, res;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
             while (1) {
                 switch (_context2.prev = _context2.next) {
@@ -62,31 +62,24 @@ describe('protocol', function () {
                             return v;
                         };
 
-                        method = function method(type, args) {
+                        method = function method(ins) {
+                            var type = ins[0],
+                                args = ins[1];
                             return methodMap[type].apply(undefined, args);
                         };
 
                         deal = _index.protocol.dealer(unpackIn, packOut)(method);
-
-                        packIn = function packIn(type, args) {
-                            return [type, args];
-                        };
-
-                        unpackOut = function unpackOut(v) {
-                            return v;
-                        };
-
                         connect = deal;
-                        call = _index.protocol.caller(packIn, unpackOut)(connect);
-                        _context2.next = 11;
-                        return call('add', [1, 2]);
+                        call = _index.protocol.caller()(connect);
+                        _context2.next = 9;
+                        return call(['add', [1, 2]]);
 
-                    case 11:
+                    case 9:
                         res = _context2.sent;
 
                         _assert2.default.equal(res, 3);
 
-                    case 13:
+                    case 11:
                     case 'end':
                         return _context2.stop();
                 }
