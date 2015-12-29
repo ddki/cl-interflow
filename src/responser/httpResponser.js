@@ -4,7 +4,6 @@ let lowProcessor = new Processor({
     packIn: v => v,
     unpackIn: ({req, body}) => {
         body = body ? JSON.parse(body + '') : '';
-        // console.log(body);
         let rawIn = {
             options: {
                 url: req.url,
@@ -33,14 +32,13 @@ module.exports = (processor, methodFinder, opts = {}) => {
                 let outBody = rawOut.body ? JSON.stringify(rawOut.body) : '';
                 let outHeaders = rawOut.headers;
                 if(outBody.headers) {
-                    res.writeHeade(200, outHeaders);
+                    res.writeHeader(200, outHeaders);
                 }
                 //
                 res.end(outBody);
             }
         };
 
-        // body = body ? JSON.parse(body + '') : '';
         response({req, body}, flush);
     };
 };

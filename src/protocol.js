@@ -83,7 +83,7 @@ let dealer = (unpackIn = id, packOut = id) => {
         checkFun(method, 'method');
         return (rawIn, flush) => new Promise((resolve, reject) => {
             let ins = unpackIn(rawIn);
-            // in dealing method may be async
+            // method may be async
             let out = method.apply(undefined, ins);
 
             if(isPromise(out)) {
