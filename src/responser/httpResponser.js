@@ -7,7 +7,7 @@
 module.exports = (processor, methodFinder, opts = {}) => {
     let response = processor.getDealer(methodFinder);
 
-    return (req, res, body) => new Promise((resolve, reject) => {
+    return (req, res, body) => {
         body = body ? JSON.parse(body + '') : '';
         let rawIn = {
             options: {
@@ -18,7 +18,7 @@ module.exports = (processor, methodFinder, opts = {}) => {
             body: body
         };
 
-        response(rawIn).then(rawOut => {
+        let flush = (rawOut) => {
             if(opts.output) {
                 let outBody = rawOut.body ? JSON.stringify(rawOut.body) : '';
                 let outHeaders = rawOut.headers;
@@ -28,7 +28,8 @@ module.exports = (processor, methodFinder, opts = {}) => {
                 //
                 res.end(outBody);
             }
-            resolve(rawOut);
-        }).catch(err => reject(err));
-    });
+        };
+
+        response(rawIn, flush);
+    };
 };

@@ -41,10 +41,12 @@
  *
  * connect::: rawIn -> rawout
  *
+ * flush::: rawOut -> void
+ *
  *
  * caller::: (packIn, unpackOut) -> connect -> ...ins -> out
  *
- * dealer::: (unpackIn, packOut) -> (methodFinder) -> rawIn -> rawOut
+ * dealer::: (unpackIn, packOut) -> (methodFinder) -> (rawIn, flush) -> rawOut
  *
  * ```
  *
@@ -81,7 +83,7 @@ let dealer = (unpackIn = id, packOut = id) => {
     checkFun(packOut, 'packOut');
     return (methodFinder) => {
         checkFun(methodFinder, 'methodFinder');
-        return (rawIn) => new Promise((resolve, reject) => {
+        return (rawIn, flush) => new Promise((resolve, reject) => {
             // find the right method to deal with in
             let method = methodFinder(rawIn);
             let ins = unpackIn(rawIn);
@@ -90,9 +92,12 @@ let dealer = (unpackIn = id, packOut = id) => {
 
             if(isPromise(out)) {
                 out.then((ret) => {
+                    flush && flush(ret);
                     resolve(ret);
                 }).catch(err => reject(err));
             } else {
+                let ret = packOut(out);
+                flush && flush(ret);
                 resolve(packOut(out));
             }
         });
