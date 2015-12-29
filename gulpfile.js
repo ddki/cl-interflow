@@ -27,6 +27,18 @@ gulp.task('buildTest', function () {
 });
 
 gulp.task('test',['build'], function (cb) {
+    exec('mocha test/lib/**/*.js', {}, function (err, stdout, stderr) {
+        if(stdout) {
+            console.log(stdout);
+        }
+        if(stderr) {
+            console.log(stderr);
+        }
+        cb();
+    });
+});
+
+gulp.task('cover',['build'], function (cb) {
     exec('npm test', {}, function (err, stdout, stderr) {
         if(stdout) {
             console.log(stdout);
