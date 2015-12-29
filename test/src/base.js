@@ -1,5 +1,6 @@
 import { protocol } from '../../index';
 import assert from 'assert';
+
 require('babel-polyfill');
 
 describe('protocol', () => {

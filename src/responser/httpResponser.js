@@ -5,7 +5,7 @@
  * rawOut = {headers, body}
  */
 module.exports = (processor, methodFinder, opts = {}) => {
-    let response = processor.getDealer()(methodFinder);
+    let response = processor.getDealer(methodFinder);
 
     return (req, res, body) => new Promise((resolve, reject) => {
         body = body ? JSON.parse(body + '') : '';

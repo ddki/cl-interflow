@@ -21,12 +21,13 @@ Processor.prototype = {
     getUnpackOut: function () {
         return this.unpackOut;
     },
-    getCaller: function () {
-        return protocol.caller(this.getPackIn(), this.getUnpackOut());
+    getCaller: function (connect) {
+        return protocol.caller(this.getPackIn(), this.getUnpackOut())(connect);
     },
-    getDealer: function () {
-        return protocol.dealer(this.getUnpackIn(), this.getPackOut());
+    getDealer: function (methodFinder) {
+        return protocol.dealer(this.getUnpackIn(), this.getPackOut())(methodFinder);
     },
+    // the way to compose processor
     pack: function (processor) {
         let packIn = compose(processor.getPackIn(), this.getPackIn());
         let unpackIn = compose(this.getUnpackIn(), processor.getUnpackIn());
