@@ -15,7 +15,7 @@ module.exports = new Processor({
                 path: '/api',
                 method: 'POST'
             }, options),
-            body: [apiName, ins]
+            body: JSON.stringify([apiName, ins])
         };
     },
     unpackIn: (rawIn) => {
@@ -23,7 +23,10 @@ module.exports = new Processor({
     },
     packOut: (out) => {
         return {
-            body: out
+            body: out,
+            headers: {
+                'content-type' : 'application/json; charset=UTF-8'
+            }
         };
     },
     unpackOut: (rawOut) => rawOut.body

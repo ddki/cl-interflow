@@ -19,7 +19,6 @@ let lowProcessor = new Processor({
 /**
  * packOut out -> rawOut
  *
- * rawIn = {options, body}
  * rawOut = {headers, body}
  */
 module.exports = (processor, methodFinder, opts = {}) => {
