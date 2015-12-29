@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var gutil = require('gulp-util');
 var babel = require('gulp-babel');
 var exec = require('child_process').exec;
 
@@ -29,10 +30,10 @@ gulp.task('buildTest', function () {
 gulp.task('test',['build'], function (cb) {
     exec('mocha test/lib/**/*.js', {}, function (err, stdout, stderr) {
         if(stdout) {
-            console.log(stdout);
+            gutil.log(stdout);
         }
         if(stderr) {
-            console.log(stderr);
+            gutil.log(stderr);
         }
         cb();
     });
@@ -41,10 +42,10 @@ gulp.task('test',['build'], function (cb) {
 gulp.task('cover',['build'], function (cb) {
     exec('npm test', {}, function (err, stdout, stderr) {
         if(stdout) {
-            console.log(stdout);
+            gutil.log(stdout);
         }
         if(stderr) {
-            console.log(stderr);
+            gutil.log(stderr);
         }
         cb();
     });

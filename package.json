@@ -16,6 +16,7 @@
     "eslint": "^1.10.3",
     "gulp": "^3.9.0",
     "gulp-babel": "^6.1.1",
+    "gulp-util": "^3.0.7",
     "istanbul": "^0.4.1",
     "mocha": "^2.3.4"
   },

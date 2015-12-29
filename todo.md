@@ -2,6 +2,10 @@
 
 - protocol for proxy
 
-- protocol compose
+- quick get http
+
+- browser client connect
 
 ## finished
+
+- protocol compose <done>

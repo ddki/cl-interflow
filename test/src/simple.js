@@ -1,6 +1,6 @@
 import assert from 'assert';
 import http from 'http';
-import {processors, connects, flushers} from '../../index';
+import {processors, connects, flushers, quicks} from '../../index';
 require('babel-polyfill');
 
 let listen = (server, port) => new Promise((resolve) => {
@@ -24,7 +24,7 @@ let getReqBody = (req) => new Promise((r) => {
 describe('simple http interflow', () => {
     it('simple interflow', async () => {
         // assemble processors
-        let processor = processors.simpleHttp.pack(
+        let processor = processors.purePostHttp.pack(
             processors.httpReqProcessor
         );
 
@@ -62,6 +62,35 @@ describe('simple http interflow', () => {
 
         let ret = await remoteAdd(2, 4);
 
+        assert.equal(ret, 6);
+    });
+
+    it('quick post http', async () => {
+        let quickPostHttp = quicks.quickPostHttp;
+        // create response
+        let methodMap = {
+            'add': (a, b) => a + b
+        };
+
+        let mid = quickPostHttp.mider((apiName) => methodMap[apiName]);
+
+        // create http server
+        let server = http.createServer(async (req, res) => {
+            let body = await getReqBody(req);
+            mid(req, res, body);
+        });
+
+        await listen(server, 0);
+
+        let port = server.address().port;
+
+        let apis = quickPostHttp.getApi({
+            hostname: '127.0.0.1',
+            port
+        });
+        let addApi = apis('add');
+
+        let ret = await addApi(2, 4);
         assert.equal(ret, 6);
     });
 });
