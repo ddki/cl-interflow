@@ -32,7 +32,7 @@ module.exports = (processor, methodFinder, opts = {}) => {
                 let outBody = rawOut.body ? JSON.stringify(rawOut.body) : '';
                 let outHeaders = rawOut.headers;
                 if(outBody.headers) {
-                    res.writeHeader(200, outHeaders);
+                    res.writeHead(200, outHeaders);
                 }
                 //
                 res.end(outBody);
