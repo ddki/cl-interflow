@@ -1,7 +1,6 @@
 import assert from 'assert';
 import http from 'http';
 import interflow from '../../index';
-
 require('babel-polyfill');
 
 let listen = (server, port) => new Promise((resolve) => {
@@ -24,7 +23,9 @@ let getReqBody = (req) => new Promise((r) => {
 
 describe('simple http interflow', () => {
     it('simple interflow', async () => {
-        let processor = interflow.processors.simpleHttp;
+        let processor = interflow.processors.simpleHttp.pack(
+            interflow.processors.httpReqProcessor
+        );
 
         let methodMap = {
             'add': (a, b) => a + b
@@ -34,10 +35,11 @@ describe('simple http interflow', () => {
             return methodMap[type].apply(undefined, args);
         };
 
-        let midGen = interflow.responsers.httpResponser(
-            processor, method, {
-                output: true
-            });
+        let response = processor.getDealer(method);
+
+        let midGen = (req, res, body) => {
+            response({req, body}, interflow.flushers.resFlusher(res));
+        };
 
         let server = http.createServer(async (req, res) => {
             let body = await getReqBody(req);

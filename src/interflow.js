@@ -4,9 +4,10 @@ import Processor from './processor';
 import httpConnect from './connect/httpConnect';
 import httpsConnect from './connect/httpsConnect';
 
-import httpResponser from './responser/httpResponser';
-
 import simpleHttp from './processor/simpleHttp';
+import httpReqProcessor from './processor/httpReqProcessor';
+
+import resFlusher from './flusher/resFlusher';
 
 module.exports = {
     protocol,
@@ -15,10 +16,11 @@ module.exports = {
         httpConnect,
         httpsConnect
     },
-    responsers: {
-        httpResponser
-    },
     processors: {
-        simpleHttp
+        simpleHttp,
+        httpReqProcessor
+    },
+    flushers: {
+        resFlusher
     }
 };
