@@ -1,12 +1,11 @@
-import protocol from '../protocol';
-
 /**
  * packOut out -> rawOut
  *
- * rawOut = {options, body}
+ * rawIn = {options, body}
+ * rawOut = {headers, body}
  */
-module.exports = (unpackIn, packOut, methodFinder, opts = {}) =>{
-    let response = protocol.dealer(unpackIn, packOut)(methodFinder);
+module.exports = (processor, methodFinder, opts = {}) => {
+    let response = processor.getDealer()(methodFinder);
 
     return (req, res, body) => new Promise((resolve, reject) => {
         body = body ? JSON.parse(body + '') : '';
@@ -20,11 +19,16 @@ module.exports = (unpackIn, packOut, methodFinder, opts = {}) =>{
         };
 
         response(rawIn).then(rawOut => {
-            resolve(rawOut);
             if(opts.output) {
                 let outBody = rawOut.body ? JSON.stringify(rawOut.body) : '';
+                let outHeaders = outBody.headers;
+                if(outBody.headers) {
+                    res.writeHeade(200, outHeaders);
+                }
+                //
                 res.end(outBody);
             }
+            resolve(rawOut);
         }).catch(err => reject(err));
     });
 };

@@ -4,17 +4,13 @@ var _assert = require('assert');
 
 var _assert2 = _interopRequireDefault(_assert);
 
-var _requestorServer = require('../../lib/simpleHttpInterflow/requestor-server');
-
-var _requestorServer2 = _interopRequireDefault(_requestorServer);
-
-var _responser = require('../../lib/simpleHttpInterflow/responser');
-
-var _responser2 = _interopRequireDefault(_responser);
-
 var _http = require('http');
 
 var _http2 = _interopRequireDefault(_http);
+
+var _index = require('../../index');
+
+var _index2 = _interopRequireDefault(_index);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -30,9 +26,13 @@ describe('simple http interflow', function () {
             }
         };
 
-        var midGen = (0, _responser2.default)(function (apiName) {
-            return methodMap[apiName];
-        }, {
+        var processor = _index2.default.processors.simpleHttp;
+
+        var methodFinder = function methodFinder(rawIn) {
+            return methodMap[rawIn.body[0]];
+        };
+
+        var midGen = _index2.default.responsers.httpResponser(processor, methodFinder, {
             output: true
         });
 
@@ -49,18 +49,18 @@ describe('simple http interflow', function () {
         });
 
         server.listen(0, _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
-            var port, request, ret;
+            var port, httpConnect, ret;
             return regeneratorRuntime.wrap(function _callee$(_context) {
                 while (1) {
                     switch (_context.prev = _context.next) {
                         case 0:
                             port = server.address().port;
-                            request = (0, _requestorServer2.default)({
+                            httpConnect = _index2.default.connects.httpConnect;
+                            _context.next = 4;
+                            return processor.getCaller()(httpConnect)({
                                 hostname: '127.0.0.1',
                                 port: port
-                            });
-                            _context.next = 4;
-                            return request('add')(1, 2);
+                            }, 'add', [1, 2]);
 
                         case 4:
                             ret = _context.sent;

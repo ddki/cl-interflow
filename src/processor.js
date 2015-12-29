@@ -1,3 +1,5 @@
+import protocol from './protocol';
+
 let Processor = function ({ packIn, unpackIn, packOut, unpackOut }) {
     this.packIn = packIn;
     this.unpackIn = unpackIn;
@@ -19,9 +21,28 @@ Processor.prototype = {
     getUnpackOut: function () {
         return this.unpackOut;
     },
-    compose: function (processor) {
-        // TODO
+    getCaller: function () {
+        return protocol.caller(this.getPackIn(), this.getUnpackOut());
+    },
+    getDealer: function () {
+        return protocol.dealer(this.getUnpackIn(), this.getPackOut());
+    },
+    pack: function (processor) {
+        let packIn = compose(processor.getPackIn(), this.getPackIn());
+        let unpackIn = compose(this.getUnpackIn(), processor.getUnpackIn());
+
+        let packOut = compose(processor.getPackOut(), this.getPackOut());
+        let unpackOut = compose(this.getUnpackOut(), processor.getUnpackOut());
+
+        return new Processor({
+            packIn,
+            unpackIn,
+            packOut,
+            unpackOut
+        });
     }
 };
+
+let compose = (f1, f2) => (...xs) => f1(f2.apply(undefined, xs));
 
 module.exports = Processor;

@@ -30,7 +30,7 @@
  * packIn::: ...ins -> rawIn
  *
  * unpackIn::: rawIn -> [ins]
-  *
+ *
  * packOut::: out -> rawOut
  *
  * unpackOut::: rawOut -> out

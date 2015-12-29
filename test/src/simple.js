@@ -1,7 +1,6 @@
 import assert from 'assert';
-import requestorServer from '../../lib/simpleHttpInterflow/requestor-server';
-import responser from '../../lib/simpleHttpInterflow/responser';
 import http from 'http';
+import interflow from '../../index';
 
 require('babel-polyfill');
 
@@ -11,9 +10,14 @@ describe('simple http interflow', () => {
             'add': (a, b) => a + b
         };
 
-        let midGen = responser((apiName) => methodMap[apiName], {
-            output: true
-        });
+        let processor = interflow.processors.simpleHttp;
+
+        let methodFinder = (rawIn) => methodMap[rawIn.body[0]];
+
+        let midGen = interflow.responsers.httpResponser(
+            processor, methodFinder, {
+                output: true
+            });
 
         let server = http.createServer((req, res) => {
             let chunks = [];
@@ -29,11 +33,14 @@ describe('simple http interflow', () => {
 
         server.listen(0, async () => {
             let port = server.address().port;
-            let request = requestorServer({
+
+            let httpConnect = interflow.connects.httpConnect;
+
+            let ret = await processor.getCaller()(httpConnect)({
                 hostname: '127.0.0.1',
                 port
-            });
-            let ret = await request('add')(1, 2);
+            }, 'add', [1, 2]);
+
             assert.equal(ret, 3);
             done();
         });
