@@ -25,7 +25,7 @@ module.exports = new Processor({
         return {
             body: out,
             headers: {
-                'content-type' : 'application/json; charset=UTF-8'
+                'content-type': 'application/json; charset=UTF-8'
             }
         };
     },

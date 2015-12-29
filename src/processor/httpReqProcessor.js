@@ -6,7 +6,7 @@ module.exports = new Processor({
         body = body ? JSON.parse(body + '') : '';
         let rawIn = {
             options: {
-                url: req.url,
+                path: req.url,
                 method: req.method,
                 headers: req.headers
             },

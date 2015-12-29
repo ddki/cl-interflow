@@ -5,11 +5,14 @@ import httpConnect from './connect/httpConnect';
 import httpsConnect from './connect/httpsConnect';
 
 import purePostHttp from './processor/purePostHttp';
+import pureGetHttp from './processor/pureGetHttp';
 import httpReqProcessor from './processor/httpReqProcessor';
 
 import resFlusher from './flusher/resFlusher';
 
 import quickPostHttp from './quick/quickPostHttp';
+import quickGetHttp from './quick/quickGetHttp';
+import quickHttp from './quick/quickHttp';
 
 module.exports = {
     protocol,
@@ -20,12 +23,15 @@ module.exports = {
     },
     processors: {
         purePostHttp,
+        pureGetHttp,
         httpReqProcessor
     },
     flushers: {
         resFlusher
     },
     quicks: {
-        quickPostHttp
+        quickPostHttp,
+        quickGetHttp,
+        quickHttp
     }
 };

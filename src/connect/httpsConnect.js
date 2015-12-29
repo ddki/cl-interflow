@@ -7,7 +7,7 @@ import requestor from '../util/requestor';
  */
 
 let request = requestor('https', {
-    bodyParser: (body) => JSON.parse(body)
+    bodyParser: (body) => body && JSON.parse(body)
 });
 
 module.exports = (rawIn) => request(rawIn.options, rawIn.body);

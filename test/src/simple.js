@@ -93,4 +93,74 @@ describe('simple http interflow', () => {
         let ret = await addApi(2, 4);
         assert.equal(ret, 6);
     });
+
+    it('quick get http', async () => {
+        let quickGetHttp = quicks.quickGetHttp;
+        // create response
+        let methodMap = {
+            'add': (a, b) => a + b
+        };
+
+        let mid = quickGetHttp.mider((apiName) => methodMap[apiName]);
+
+        // create http server
+        let server = http.createServer(async (req, res) => {
+            mid(req, res);
+        });
+
+        await listen(server, 0);
+
+        let port = server.address().port;
+
+        let apis = quickGetHttp.getApi({
+            hostname: '127.0.0.1',
+            port
+        });
+        let addApi = apis('add');
+
+        let ret = await addApi(2, 4);
+        assert.equal(ret, 6);
+    });
+
+    it('quick http', async () => {
+        let quickHttp = quicks.quickHttp;
+        // create response
+        let methodMap = {
+            'add': (a, b) => a + b,
+            'sub': (a, b) => a - b
+        };
+
+        let mid = quickHttp.mider((apiName) => methodMap[apiName]);
+
+        // create http server
+        let server = http.createServer(async (req, res) => {
+            let body = await getReqBody(req);
+            mid(req, res, body);
+        });
+
+        await listen(server, 0);
+
+        let port = server.address().port;
+
+        // get
+        let getApis = quickHttp.getApi({
+            hostname: '127.0.0.1',
+            port
+        });
+        let addApi = getApis('add');
+
+        let ret = await addApi(2, 4);
+        assert.equal(ret, 6);
+
+        // post
+        let postApis = quickHttp.getApi({
+            hostname: '127.0.0.1',
+            method: 'POST',
+            port
+        });
+        let subApi = postApis('sub');
+
+        let ret2 = await subApi(2, 4);
+        assert.equal(ret2, -2);
+    });
 });
