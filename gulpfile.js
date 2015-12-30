@@ -1,13 +1,18 @@
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var babel = require('gulp-babel');
+var del = require('del');
 var exec = require('child_process').exec;
 
-gulp.task('default', ['build', 'test']);
+gulp.task('default', ['clean', 'test']);
 
-gulp.watch('src/**/*.js', ['build', 'test']);
+gulp.task('clean', function (cb) {
+    del(['lib/**/*', 'test/lib/**/*'], cb);
+});
 
-gulp.watch('test/**/*.js', ['build', 'test']);
+gulp.watch('src/**/*.js', ['test']);
+
+gulp.watch('test/src/**/*.js', ['test']);
 
 gulp.task('build', ['buildSrc', 'buildTest']);
 
@@ -27,7 +32,7 @@ gulp.task('buildTest', function () {
         .pipe(gulp.dest('test/lib'));
 });
 
-gulp.task('test',['build'], function (cb) {
+gulp.task('test', ['build'], function (cb) {
     exec('mocha test/lib/**/*.js', {}, function (err, stdout, stderr) {
         if(stdout) {
             gutil.log(stdout);
@@ -39,7 +44,7 @@ gulp.task('test',['build'], function (cb) {
     });
 });
 
-gulp.task('cover',['build'], function (cb) {
+gulp.task('cover', ['build'], function (cb) {
     exec('npm test', {}, function (err, stdout, stderr) {
         if(stdout) {
             gutil.log(stdout);

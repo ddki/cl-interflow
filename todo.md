@@ -6,6 +6,8 @@
 
 - browser client connect
 
+- example
+
 ## finished
 
 - protocol compose <done>
