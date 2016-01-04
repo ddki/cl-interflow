@@ -10,8 +10,6 @@ import httpReqProcessor from './processor/httpReqProcessor';
 
 import resFlusher from './flusher/resFlusher';
 
-import quickPostHttp from './quick/quickPostHttp';
-import quickGetHttp from './quick/quickGetHttp';
 import quickHttp from './quick/quickHttp';
 
 module.exports = {
@@ -30,8 +28,6 @@ module.exports = {
         resFlusher
     },
     quicks: {
-        quickPostHttp,
-        quickGetHttp,
         quickHttp
     }
 };

@@ -1,0 +1,28 @@
+<!-- 
+start server (see server.js) and visit http://127.0.0.1:9000/ 
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>quickHttp</title>
+</head>
+<body>
+    <h1>test for quichHttp</h1>
+    <h2>2 + 4 = <span id='addResult'></span></h2>
+    <script src="../../../browser/quickHttp.js"></script>
+    <script>
+        var getApis = window.quickHttp.default({
+            hostname: '127.0.0.1',
+            port: 9000
+        });
+        var addApi = getApis('add');
+
+        addApi(2, 4).then(function(res){
+            console.log(res);
+            var addNode = document.getElementById('addResult');
+            addNode.innerHTML = res;
+        });
+    </script>
+</body>
+</html>

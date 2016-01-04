@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var gutil = require('gulp-util');
 var babel = require('gulp-babel');
 var del = require('del');
+var runSequence = require('run-sequence');
 var exec = require('child_process').exec;
 
 var execp = function (cmd, cb) {
@@ -16,10 +17,12 @@ var execp = function (cmd, cb) {
     });
 };
 
-gulp.task('default', ['clean', 'test']);
+gulp.task('default', function (cb) {
+    runSequence('clean', ['test', 'buildBrowser'], cb);
+});
 
 gulp.task('clean', function (cb) {
-    del(['lib/**/*', 'test/lib/**/*'], cb);
+    return del(['lib/**/*', 'test/lib/**/*'], cb);
 });
 
 gulp.task('lint', function (cb) {
@@ -54,4 +57,8 @@ gulp.task('test', ['build'], function (cb) {
 
 gulp.task('cover', ['build'], function (cb) {
     execp('npm test', cb);
+});
+
+gulp.task('buildBrowser', function (cb) {
+    execp('./node_modules/.bin/webpack --config ./build/webpack.config.js', cb);
 });

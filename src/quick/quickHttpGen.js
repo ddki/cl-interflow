@@ -3,7 +3,8 @@ import resFlusher from '../flusher/resFlusher';
 import httpConnect from '../connect/httpConnect';
 import httpsConnect from '../connect/httpsConnect';
 
-module.exports = (httpProcessor, t = 'http') => {
+module.exports = ({httpProcessor, flusher}, t = 'http') => {
+    flusher = flusher || resFlusher;
     let connect = t === 'https' ? httpsConnect : httpConnect;
 
     // assemble processors

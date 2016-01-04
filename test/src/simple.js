@@ -4,7 +4,7 @@ import {processors, connects, flushers, quicks} from '../../index';
 require('babel-polyfill');
 
 let listen = (server, port) => new Promise((resolve) => {
-    server.listen(port, async () => {
+    server.listen(port, () => {
         resolve(server);
     });
 });
@@ -65,65 +65,8 @@ describe('simple http interflow', () => {
         assert.equal(ret, 6);
     });
 
-    it('quick post http', async () => {
-        let quickPostHttp = quicks.quickPostHttp;
-        // create response
-        let methodMap = {
-            'add': (a, b) => a + b
-        };
-
-        let mid = quickPostHttp.mider((apiName) => methodMap[apiName]);
-
-        // create http server
-        let server = http.createServer(async (req, res) => {
-            let body = await getReqBody(req);
-            mid(req, res, body);
-        });
-
-        await listen(server, 0);
-
-        let port = server.address().port;
-
-        let apis = quickPostHttp.getApi({
-            hostname: '127.0.0.1',
-            port
-        });
-        let addApi = apis('add');
-
-        let ret = await addApi(2, 4);
-        assert.equal(ret, 6);
-    });
-
-    it('quick get http', async () => {
-        let quickGetHttp = quicks.quickGetHttp;
-        // create response
-        let methodMap = {
-            'add': (a, b) => a + b
-        };
-
-        let mid = quickGetHttp.mider((apiName) => methodMap[apiName]);
-
-        // create http server
-        let server = http.createServer(async (req, res) => {
-            mid(req, res);
-        });
-
-        await listen(server, 0);
-
-        let port = server.address().port;
-
-        let apis = quickGetHttp.getApi({
-            hostname: '127.0.0.1',
-            port
-        });
-        let addApi = apis('add');
-
-        let ret = await addApi(2, 4);
-        assert.equal(ret, 6);
-    });
-
     it('quick http', async () => {
-        let quickHttp = quicks.quickHttp;
+        let quickHttp = quicks.quickHttp();
         // create response
         let methodMap = {
             'add': (a, b) => a + b,
