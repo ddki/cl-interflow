@@ -19,7 +19,7 @@ module.exports = ({httpProcessor, flusher}, t = 'http') => {
         return (req, res, body) => {
             return response({
                 req, body
-            }, resFlusher(res));
+            }, flusher(res));
         };
     };
 
