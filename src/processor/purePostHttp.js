@@ -19,7 +19,9 @@ module.exports = new Processor({
         };
     },
     unpackIn: (rawIn) => {
-        return rawIn.body;
+        let body = rawIn.body;
+        body = body ? JSON.parse(body + '') : '';
+        return body;
     },
     packOut: (out) => {
         return {

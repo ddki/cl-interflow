@@ -52,7 +52,7 @@ gulp.task('buildTest', function () {
 });
 
 gulp.task('test', ['build'], function (cb) {
-    execp('mocha test/lib/**/*.js', cb);
+    execp('./node_modules/.bin/mocha test/lib/**/*.js', cb);
 });
 
 gulp.task('cover', ['build'], function (cb) {

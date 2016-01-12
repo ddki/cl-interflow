@@ -3,7 +3,9 @@
   "version": "0.0.4",
   "description": "Define A Simple Protocol For Interflow Based On Function.",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "cl-requestor": "0.0.1"
+  },
   "devDependencies": {
     "babel": "^6.3.26",
     "babel-cli": "^6.3.17",

@@ -26,8 +26,8 @@ Processor.prototype = {
     getCaller: function (connect) {
         return protocol.caller(this.getPackIn(), this.getUnpackOut())(connect);
     },
-    getDealer: function (methodFinder) {
-        return protocol.dealer(this.getUnpackIn(), this.getPackOut())(methodFinder);
+    getDealer: function (method) {
+        return protocol.dealer(this.getUnpackIn(), this.getPackOut())(method);
     },
     // the way to compose processor
     pack: function (processor) {

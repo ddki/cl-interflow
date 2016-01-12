@@ -6,6 +6,8 @@
 
 - example
 
+- exception and error handler
+
 ## finished
 
 - protocol compose <done>

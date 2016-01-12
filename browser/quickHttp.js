@@ -127,6 +127,10 @@ this["quickHttp"] =
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	/**
+	 * req is node request object
+	 * body is request body
+	 */
 	module.exports = new _processor2.default({
 	    packIn: function packIn(v) {
 	        return v;
