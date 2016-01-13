@@ -2,7 +2,7 @@ import protocol from './protocol';
 
 let id = v => v;
 
-let Processor = function ({ packIn, unpackIn, packOut, unpackOut }) {
+let Processor = function ({ packIn, unpackIn, packOut, unpackOut } = {}) {
     this.packIn = packIn || id;
     this.unpackIn = unpackIn || id;
     this.packOut = packOut || id;

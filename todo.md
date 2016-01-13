@@ -8,6 +8,8 @@
 
 - exception and error handler
 
+- support promise for pack and unpack
+
 ## finished
 
 - protocol compose <done>

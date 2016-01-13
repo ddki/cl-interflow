@@ -22,7 +22,7 @@ gulp.task('default', function (cb) {
 });
 
 gulp.task('clean', function (cb) {
-    return del(['lib/**/*', 'test/lib/**/*'], cb);
+    return del(['lib', 'test/lib'], cb);
 });
 
 gulp.task('lint', function (cb) {

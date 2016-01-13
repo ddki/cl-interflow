@@ -139,7 +139,6 @@ this["quickHttp"] =
 	        var req = _ref.req;
 	        var body = _ref.body;
 
-	        body = body ? JSON.parse(body + '') : '';
 	        var rawIn = {
 	            options: {
 	                path: req.url,
@@ -168,7 +167,9 @@ this["quickHttp"] =
 	    return v;
 	};
 
-	var Processor = function Processor(_ref) {
+	var Processor = function Processor() {
+	    var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
 	    var packIn = _ref.packIn;
 	    var unpackIn = _ref.unpackIn;
 	    var packOut = _ref.packOut;
@@ -197,8 +198,8 @@ this["quickHttp"] =
 	    getCaller: function getCaller(connect) {
 	        return _protocol2.default.caller(this.getPackIn(), this.getUnpackOut())(connect);
 	    },
-	    getDealer: function getDealer(methodFinder) {
-	        return _protocol2.default.dealer(this.getUnpackIn(), this.getPackOut())(methodFinder);
+	    getDealer: function getDealer(method) {
+	        return _protocol2.default.dealer(this.getUnpackIn(), this.getPackOut())(method);
 	    },
 	    // the way to compose processor
 	    pack: function pack(processor) {
@@ -392,11 +393,7 @@ this["quickHttp"] =
 	 * rawIn = {options, body}
 	 */
 
-	var request = (0, _browserRequestor2.default)({
-	  bodyParser: function bodyParser(body) {
-	    return body && JSON.parse(body);
-	  }
-	});
+	var request = (0, _browserRequestor2.default)();
 
 	module.exports = function (rawIn) {
 	  return request(rawIn.options, rawIn.body);
@@ -2017,7 +2014,9 @@ this["quickHttp"] =
 	        };
 	    },
 	    unpackIn: function unpackIn(rawIn) {
-	        return rawIn.body;
+	        var body = rawIn.body;
+	        body = body ? JSON.parse(body + '') : '';
+	        return body;
 	    },
 	    packOut: function packOut(out) {
 	        return {
