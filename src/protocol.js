@@ -88,13 +88,14 @@ let dealer = (unpackIn = id, packOut = id) => {
 
             if(isPromise(out)) {
                 out.then((ret) => {
+                    ret = packOut(ret);
                     flush && flush(ret);
                     resolve(ret);
                 }).catch(err => reject(err));
             } else {
                 let ret = packOut(out);
                 flush && flush(ret);
-                resolve(packOut(out));
+                resolve(ret);
             }
         });
     };

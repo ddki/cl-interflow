@@ -428,6 +428,7 @@ this["ajaxCaller"] =
 
 	                if (isPromise(out)) {
 	                    out.then(function (ret) {
+	                        ret = packOut(ret);
 	                        flush && flush(ret);
 	                        resolve(ret);
 	                    }).catch(function (err) {
@@ -436,7 +437,7 @@ this["ajaxCaller"] =
 	                } else {
 	                    var ret = packOut(out);
 	                    flush && flush(ret);
-	                    resolve(packOut(out));
+	                    resolve(ret);
 	                }
 	            });
 	        };

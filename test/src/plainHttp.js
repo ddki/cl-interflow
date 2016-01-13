@@ -74,6 +74,34 @@ describe('plainhttp', () => {
         assert.equal(ret, 3);
     });
 
+    it('promise', async () => {
+        let {caller, mider} = plainhttp({
+            processor: plainhttp.processors.rcGet
+        });
+
+        let mid = mider((ins) => {
+            if(ins[0] === 'add') {
+                return Promise.resolve(ins[1][0] + ins[1][1]);
+            }
+        });
+
+        let server = http.createServer(async (req, res) => {
+            let body = await getReqBody(req);
+            mid(req, res, body);
+        });
+        await listen(server, 0);
+
+        let ret = await caller({
+            options: {
+                hostname: '127.0.0.1',
+                port: server.address().port
+            },
+            apiName: 'add',
+            ins: [1, 2]
+        });
+        assert.equal(ret, 3);
+    });
+
     it('rcPost', async () => {
         let {caller, mider} = plainhttp({
             processor: plainhttp.processors.rcPost
