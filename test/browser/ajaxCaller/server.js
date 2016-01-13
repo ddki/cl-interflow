@@ -1,5 +1,5 @@
 import http from 'http';
-import { quicks } from '../../../index';
+import { plainhttp } from '../../../index';
 import fs from 'fs';
 import path from 'path';
 
@@ -23,14 +23,21 @@ let getReqBody = (req) => new Promise((r) => {
     });
 });
 
-let quickHttp = quicks.quickHttp();
 // create response
 let methodMap = {
     'add': (a, b) => a + b,
     'sub': (a, b) => a - b
 };
 
-let mid = quickHttp.mider((apiName) => methodMap[apiName]);
+let {mider} = plainhttp({
+    processor: plainhttp.processors.rc
+});
+
+let mid = mider((ins) => {
+    let apiName = ins[0];
+    let args = ins[1];
+    return methodMap[apiName](...args);
+});
 
 let app = async () => {
     // create http server
@@ -39,8 +46,8 @@ let app = async () => {
         if(req.url === '/page' || req.url === '/') {
             let readStream = fs.createReadStream(path.join(__dirname, './page.html'));
             readStream.pipe(res);
-        } else if(req.url === '/browser/quickHttp.js'){
-            let readStream = fs.createReadStream(path.join(__dirname, '../../../browser/quickHttp.js'));
+        } else if(req.url === '/browser/ajaxCaller.js'){
+            let readStream = fs.createReadStream(path.join(__dirname, '../../../browser/ajaxCaller.js'));
             readStream.pipe(res);
         } else {
             let body = await getReqBody(req);
@@ -52,7 +59,7 @@ let app = async () => {
 
     let port = server.address().port;
 
-    console.log('browser:quickHttp port is ' + port);
+    console.log('browser:server port is ' + port);
 };
 
 app();

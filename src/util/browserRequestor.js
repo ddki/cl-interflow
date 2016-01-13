@@ -26,6 +26,14 @@ function parseResponseHeaders (headerStr) {
 
 module.exports = (opts = {}) => {
     let { optionsWraper, bodyParser } = opts;
+
+    /**
+     * options
+     *     headers
+     *     path / url
+     *     method
+     * reqBody
+     */
     let request = (options = {}, reqBody = '') => new Promise((resolve, reject) => {
         if(optionsWraper)
             options = optionsWraper(options);

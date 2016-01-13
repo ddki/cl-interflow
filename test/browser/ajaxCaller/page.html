@@ -1,0 +1,33 @@
+<!--
+start server (see server.js) and visit http://127.0.0.1:9000/ 
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ajaxCaller</title>
+</head>
+<body>
+    <h1>test for quichHttp</h1>
+    <h2>2 + 4 = <span id='addResult'></span></h2>
+    <script src="../../../browser/ajaxCaller.js"></script>
+    <script>
+        var ac = window.ajaxCaller.default;
+        var caller = ac({
+            processor: ac.processors.rc
+        }).caller;
+        caller({
+            options: {
+                hostname: '127.0.0.1',
+                port: 9000
+            },
+            apiName: 'add',
+            ins: [2, 4]
+        }).then(function(res){
+            console.log(res);
+            var addNode = document.getElementById('addResult');
+            addNode.innerHTML = res;
+        });
+    </script>
+</body>
+</html>

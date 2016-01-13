@@ -1,4 +1,4 @@
-this["quickHttp"] =
+this["ajaxCaller"] =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -48,93 +48,174 @@ this["quickHttp"] =
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 
-	var _httpReqProcessor = __webpack_require__(1);
+	var _browserRequestor = __webpack_require__(1);
 
-	var _httpReqProcessor2 = _interopRequireDefault(_httpReqProcessor);
+	var _browserRequestor2 = _interopRequireDefault(_browserRequestor);
 
-	var _ajaxBrowser = __webpack_require__(4);
+	var _getProcessor = __webpack_require__(2);
 
-	var _ajaxBrowser2 = _interopRequireDefault(_ajaxBrowser);
+	var _getProcessor2 = _interopRequireDefault(_getProcessor);
 
-	var _pureGetHttp = __webpack_require__(6);
+	var _processors = __webpack_require__(5);
 
-	var _pureGetHttp2 = _interopRequireDefault(_pureGetHttp);
-
-	var _purePostHttp = __webpack_require__(13);
-
-	var _purePostHttp2 = _interopRequireDefault(_purePostHttp);
+	var _processors2 = _interopRequireDefault(_processors);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var getApiHigh = function getApiHigh(processor, connect) {
-	    var request = processor.getCaller(connect);
+	/**
+	 * opts = {
+	 *     processor,
+	 *     lowProcessor
+	 * }
+	 *
+	 * processor = new Processor({ packIn, unpackIn, packOut, unPackout })
+	 *
+	 * lowProcessor = new Processor({ packIn, unpackIn, packOut, unPackout })
+	 */
+	var plainhttp = function plainhttp() {
+	  var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-	    var getApi = function getApi() {
-	        var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	        return function (apiName) {
-	            return function () {
-	                for (var _len = arguments.length, ins = Array(_len), _key = 0; _key < _len; _key++) {
-	                    ins[_key] = arguments[_key];
-	                }
+	  var processor = (0, _getProcessor2.default)(opts);
+	  //
+	  var request = (0, _browserRequestor2.default)(opts);
 
-	                return request({
-	                    options: options,
-	                    apiName: apiName,
-	                    ins: ins
-	                });
-	            };
-	        };
-	    };
+	  /**
+	   * rawIn = {
+	   *     options,
+	   *     body
+	   * }
+	   */
+	  var connect = function connect(rawIn) {
+	    return request(rawIn.options, rawIn.body);
+	  };
 
-	    return getApi;
-	};
+	  // get caller
+	  var caller = processor.getCaller(connect);
 
-	// assemble processors
-	var getProcessor = _pureGetHttp2.default.pack(_httpReqProcessor2.default);
+	  return {
+	    caller: caller
+	  };
+	}; /**
+	    * this module is provided to browser
+	    */
 
-	var postProcessor = _purePostHttp2.default.pack(_httpReqProcessor2.default);
+	plainhttp.processors = _processors2.default;
 
-	var getGetApi = getApiHigh(getProcessor, _ajaxBrowser2.default);
-
-	var postGetApi = getApiHigh(postProcessor, _ajaxBrowser2.default);
-
-	var getApi = function getApi() {
-	    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-	    var method = options.method || 'GET';
-	    method = method.toUpperCase();
-	    if (method === 'GET') {
-	        return getGetApi(options);
-	    } else if (method === 'POST') {
-	        return postGetApi(options);
-	    }
-	};
-
-	exports.default = getApi;
+	exports.default = plainhttp;
 
 /***/ },
 /* 1 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	/**
+	 * XmlHttpRequest's getAllResponseHeaders() method returns a string of response
+	 * headers according to the format described here:
+	 * http://www.w3.org/TR/XMLHttpRequest/#the-getallresponseheaders-method
+	 * This method parses that string into a user-friendly key/value pair object.
+	 */
+	function parseResponseHeaders(headerStr) {
+	    var headers = {};
+	    if (!headerStr) {
+	        return headers;
+	    }
+	    var headerPairs = headerStr.split('\r\n');
+	    for (var i = 0; i < headerPairs.length; i++) {
+	        var headerPair = headerPairs[i];
+	        // Can't use split() here because it does the wrong thing
+	        // if the header value has the string ": " in it.
+	        var index = headerPair.indexOf(': ');
+	        if (index > 0) {
+	            var key = headerPair.substring(0, index);
+	            var val = headerPair.substring(index + 2);
+	            headers[key] = val;
+	        }
+	    }
+	    return headers;
+	}
+
+	module.exports = function () {
+	    var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	    var optionsWraper = opts.optionsWraper;
+	    var bodyParser = opts.bodyParser;
+
+	    /**
+	     * options
+	     *     headers
+	     *     path / url
+	     *     method
+	     * reqBody
+	     */
+
+	    var request = function request() {
+	        var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	        var reqBody = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+	        return new Promise(function (resolve, reject) {
+	            if (optionsWraper) options = optionsWraper(options);
+
+	            var httpRequest = new XMLHttpRequest();
+	            httpRequest.onreadystatechange = function () {
+	                if (httpRequest.readyState === 4) {
+	                    if (httpRequest.status === 200) {
+	                        var body = httpRequest.responseText;
+	                        var headers = parseResponseHeaders(httpRequest.getAllResponseHeaders());
+	                        if (bodyParser) body = bodyParser(body);
+	                        resolve({
+	                            body: body,
+	                            headers: headers
+	                        });
+	                    } else {
+	                        reject({
+	                            status: httpRequest.status,
+	                            statusText: httpRequest.statusText,
+	                            responseText: httpRequest.responseText
+	                        });
+	                    }
+	                }
+	            };
+	            // set headers
+	            if (options.headers) {
+	                for (var name in options.headers) {
+	                    httpRequest.setRequestHeader(name, options.headers[name]);
+	                }
+	            }
+	            var method = options.method || 'GET';
+	            method = method.toUpperCase();
+	            httpRequest.open(method, options.url || options.path);
+	            httpRequest.send(reqBody);
+	        });
+	    };
+
+	    return request;
+	};
+
+/***/ },
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _processor = __webpack_require__(2);
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _processor = __webpack_require__(3);
 
 	var _processor2 = _interopRequireDefault(_processor);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var idProcessor = new _processor2.default();
 	/**
-	 * req is node request object
-	 * body is request body
+	 * req is request object in node.
+	 *
+	 * body is the request body, could be undefined.
 	 */
-	module.exports = new _processor2.default({
-	    packIn: function packIn(v) {
-	        return v;
-	    },
+	var stdLowProcessor = new _processor2.default({
 	    unpackIn: function unpackIn(_ref) {
 	        var req = _ref.req;
 	        var body = _ref.body;
@@ -151,13 +232,21 @@ this["quickHttp"] =
 	    }
 	});
 
+	exports.default = function (opts) {
+	    var processor = opts.processor || idProcessor;
+	    var lowProcessor = opts.lowProcessor || stdLowProcessor;
+	    // pack the low processor
+	    processor = processor.pack(lowProcessor);
+	    return processor;
+	};
+
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _protocol = __webpack_require__(3);
+	var _protocol = __webpack_require__(4);
 
 	var _protocol2 = _interopRequireDefault(_protocol);
 
@@ -231,7 +320,7 @@ this["quickHttp"] =
 	module.exports = Processor;
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -376,125 +465,26 @@ this["quickHttp"] =
 	};
 
 /***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _browserRequestor = __webpack_require__(5);
-
-	var _browserRequestor2 = _interopRequireDefault(_browserRequestor);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	/**
-	 * packIn::: ins -> rawIn
-	 *
-	 * rawIn = {options, body}
-	 */
-
-	var request = (0, _browserRequestor2.default)();
-
-	module.exports = function (rawIn) {
-	  return request(rawIn.options, rawIn.body);
-	};
-
-/***/ },
 /* 5 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	/**
-	 * XmlHttpRequest's getAllResponseHeaders() method returns a string of response
-	 * headers according to the format described here:
-	 * http://www.w3.org/TR/XMLHttpRequest/#the-getallresponseheaders-method
-	 * This method parses that string into a user-friendly key/value pair object.
-	 */
-	function parseResponseHeaders(headerStr) {
-	    var headers = {};
-	    if (!headerStr) {
-	        return headers;
-	    }
-	    var headerPairs = headerStr.split('\r\n');
-	    for (var i = 0; i < headerPairs.length; i++) {
-	        var headerPair = headerPairs[i];
-	        // Can't use split() here because it does the wrong thing
-	        // if the header value has the string ": " in it.
-	        var index = headerPair.indexOf(': ');
-	        if (index > 0) {
-	            var key = headerPair.substring(0, index);
-	            var val = headerPair.substring(index + 2);
-	            headers[key] = val;
-	        }
-	    }
-	    return headers;
-	}
-
-	module.exports = function () {
-	    var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	    var optionsWraper = opts.optionsWraper;
-	    var bodyParser = opts.bodyParser;
-
-	    var request = function request() {
-	        var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	        var reqBody = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-	        return new Promise(function (resolve, reject) {
-	            if (optionsWraper) options = optionsWraper(options);
-
-	            var httpRequest = new XMLHttpRequest();
-	            httpRequest.onreadystatechange = function () {
-	                if (httpRequest.readyState === 4) {
-	                    if (httpRequest.status === 200) {
-	                        var body = httpRequest.responseText;
-	                        var headers = parseResponseHeaders(httpRequest.getAllResponseHeaders());
-	                        if (bodyParser) body = bodyParser(body);
-	                        resolve({
-	                            body: body,
-	                            headers: headers
-	                        });
-	                    } else {
-	                        reject({
-	                            status: httpRequest.status,
-	                            statusText: httpRequest.statusText,
-	                            responseText: httpRequest.responseText
-	                        });
-	                    }
-	                }
-	            };
-	            // set headers
-	            if (options.headers) {
-	                for (var name in options.headers) {
-	                    httpRequest.setRequestHeader(name, options.headers[name]);
-	                }
-	            }
-	            var method = options.method || 'GET';
-	            method = method.toUpperCase();
-	            httpRequest.open(method, options.url || options.path);
-	            httpRequest.send(reqBody);
-	        });
-	    };
-
-	    return request;
-	};
-
-/***/ },
-/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _querystring = __webpack_require__(7);
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _querystring = __webpack_require__(6);
 
 	var _querystring2 = _interopRequireDefault(_querystring);
 
-	var _processor = __webpack_require__(2);
-
-	var _processor2 = _interopRequireDefault(_processor);
-
-	var _url = __webpack_require__(10);
+	var _url = __webpack_require__(9);
 
 	var _url2 = _interopRequireDefault(_url);
+
+	var _processor = __webpack_require__(3);
+
+	var _processor2 = _interopRequireDefault(_processor);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -510,8 +500,27 @@ this["quickHttp"] =
 	    return m1;
 	};
 
-	module.exports = new _processor2.default({
-	    packIn: function packIn(_ref) {
+	var out = {
+	    packOut: function packOut(out) {
+	        return {
+	            body: JSON.stringify(out),
+	            headers: {
+	                'content-type': 'application/json; charset=UTF-8'
+	            }
+	        };
+	    },
+	    unpackOut: function unpackOut(rawOut) {
+	        return JSON.parse(rawOut.body);
+	    }
+	};
+
+	/**
+	 * caller (options, apiName, ins) -> out
+	 */
+	var rcGet = {
+	    packIn: function packIn() {
+	        var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
 	        var options = _ref.options;
 	        var apiName = _ref.apiName;
 	        var ins = _ref.ins;
@@ -533,31 +542,84 @@ this["quickHttp"] =
 	        var obj = _querystring2.default.parse(query);
 	        return JSON.parse(obj[queryName]);
 	    },
-	    packOut: function packOut(out) {
+	    packOut: out.packOut,
+	    unpackOut: out.unpackOut
+	};
+
+	/**
+	 * caller (options, apiName, ins) -> out
+	 */
+	var rcPost = {
+	    packIn: function packIn() {
+	        var _ref2 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+	        var options = _ref2.options;
+	        var apiName = _ref2.apiName;
+	        var ins = _ref2.ins;
+
 	        return {
-	            body: out,
-	            headers: {
-	                'content-type': 'application/json; charset=UTF-8'
-	            }
+	            options: def({
+	                headers: {},
+	                path: '/api',
+	                method: 'POST'
+	            }, options),
+	            body: JSON.stringify([apiName, ins])
 	        };
 	    },
-	    unpackOut: function unpackOut(rawOut) {
-	        return rawOut.body;
-	    }
-	});
+	    unpackIn: function unpackIn(rawIn) {
+	        var body = rawIn.body;
+	        body = body ? JSON.parse(body + '') : '';
+	        return body;
+	    },
+	    packOut: out.packOut,
+	    unpackOut: out.unpackOut
+	};
+
+	/**
+	 * caller (options, apiName, ins) -> out
+	 */
+	var rc = {
+	    packIn: function packIn() {
+	        var ins = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+	        var options = ins.options || {};
+	        var method = options.method || '';
+	        if (method.toUpperCase() === 'POST') {
+	            return rcPost.packIn(ins);
+	        } else {
+	            return rcGet.packIn(ins);
+	        }
+	    },
+	    unpackIn: function unpackIn(rawIn) {
+	        var method = rawIn.options.method;
+	        if (method === 'POST') {
+	            return rcPost.unpackIn(rawIn);
+	        } else {
+	            return rcGet.unpackIn(rawIn);
+	        }
+	    },
+	    packOut: out.packOut,
+	    unpackOut: out.unpackOut
+	};
+
+	exports.default = {
+	    rcGet: new _processor2.default(rcGet),
+	    rcPost: new _processor2.default(rcPost),
+	    rc: new _processor2.default(rc)
+	};
 
 /***/ },
-/* 7 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	exports.decode = exports.parse = __webpack_require__(8);
-	exports.encode = exports.stringify = __webpack_require__(9);
+	exports.decode = exports.parse = __webpack_require__(7);
+	exports.encode = exports.stringify = __webpack_require__(8);
 
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -643,7 +705,7 @@ this["quickHttp"] =
 
 
 /***/ },
-/* 9 */
+/* 8 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -713,7 +775,7 @@ this["quickHttp"] =
 
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -737,7 +799,7 @@ this["quickHttp"] =
 	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 	// USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-	var punycode = __webpack_require__(11);
+	var punycode = __webpack_require__(10);
 
 	exports.parse = urlParse;
 	exports.resolve = urlResolve;
@@ -809,7 +871,7 @@ this["quickHttp"] =
 	      'gopher:': true,
 	      'file:': true
 	    },
-	    querystring = __webpack_require__(7);
+	    querystring = __webpack_require__(6);
 
 	function urlParse(url, parseQueryString, slashesDenoteHost) {
 	  if (url && isObject(url) && url instanceof Url) return url;
@@ -1426,7 +1488,7 @@ this["quickHttp"] =
 
 
 /***/ },
-/* 11 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/punycode v1.3.2 by @mathias */
@@ -1958,10 +2020,10 @@ this["quickHttp"] =
 
 	}(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)(module), (function() { return this; }())))
 
 /***/ },
-/* 12 */
+/* 11 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -1975,61 +2037,6 @@ this["quickHttp"] =
 		return module;
 	}
 
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _processor = __webpack_require__(2);
-
-	var _processor2 = _interopRequireDefault(_processor);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var def = function def() {
-	    var m1 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	    var m2 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-	    for (var name in m2) {
-	        m1[name] = m2[name];
-	    }
-	    return m1;
-	};
-
-	module.exports = new _processor2.default({
-	    packIn: function packIn(_ref) {
-	        var options = _ref.options;
-	        var apiName = _ref.apiName;
-	        var ins = _ref.ins;
-
-	        return {
-	            options: def({
-	                headers: {},
-	                path: '/api',
-	                method: 'POST'
-	            }, options),
-	            body: JSON.stringify([apiName, ins])
-	        };
-	    },
-	    unpackIn: function unpackIn(rawIn) {
-	        var body = rawIn.body;
-	        body = body ? JSON.parse(body + '') : '';
-	        return body;
-	    },
-	    packOut: function packOut(out) {
-	        return {
-	            body: out,
-	            headers: {
-	                'content-type': 'application/json; charset=UTF-8'
-	            }
-	        };
-	    },
-	    unpackOut: function unpackOut(rawOut) {
-	        return rawOut.body;
-	    }
-	});
 
 /***/ }
 /******/ ]);
