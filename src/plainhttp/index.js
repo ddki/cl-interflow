@@ -39,7 +39,7 @@ let stdMidForm = (dealer, flusher) => (req, res, body) => dealer({
  */
 let plainhttp = (opts = {}) => {
     let flusher = opts.flusher || stdFlusher;
-    let midForm = opts.midFrom || stdMidForm;
+    let midForm = opts.midForm || stdMidForm;
     let processor = getProcessor(opts);
     //
     let request = requestor(opts.type);
