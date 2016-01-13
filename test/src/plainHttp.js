@@ -129,4 +129,34 @@ describe('plainhttp', () => {
         });
         assert.equal(ret, -20);
     });
+
+    it('midForm', async () => {
+        let {caller, mider} = plainhttp({
+            processor: plainhttp.processors.rc,
+            midForm: (dealer, flusher) => async (req, res) => {
+                let body = await getReqBody(req);
+                return dealer({ req, body}, flusher(res));
+            }
+        });
+
+        let mid = mider((ins) => {
+            if(ins[0] === 'add') {
+                return ins[1][0] + ins[1][1];
+            }
+        });
+
+        let server = http.createServer(mid);
+        await listen(server, 0);
+
+        let ret = await caller({
+            options: {
+                hostname: '127.0.0.1',
+                method: 'POST',
+                port: server.address().port
+            },
+            apiName: 'add',
+            ins: [10, -30]
+        });
+        assert.equal(ret, -20);
+    });
 });
