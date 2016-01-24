@@ -325,7 +325,7 @@ this["ajaxCaller"] =
 
 	'use strict';
 
-	function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 	/**
 	 *
@@ -471,6 +471,8 @@ this["ajaxCaller"] =
 
 	'use strict';
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
@@ -603,10 +605,87 @@ this["ajaxCaller"] =
 	    unpackOut: out.unpackOut
 	};
 
+	/**
+	 * api calling error processor
+	 *
+	 * 1. packOut. if out is an special exception object (not real exception), wrap data to a special json
+	 *    {
+	 *        error: null,
+	 *        data: any
+	 *    }
+	 *    or
+	 *    {
+	 *        error: {
+	 *            type: String,
+	 *            message: String,
+	 *            details: any
+	 *        },
+	 *        data: null
+	 *    }
+	 * 2. unpackOut. parse to the special json, if it's error type, throw it.
+	 */
+	var unique = {};
+
+	var exception = function exception(type, message, details) {
+	    return {
+	        error: {
+	            type: type,
+	            message: message,
+	            details: details
+	        },
+	        unique: unique
+	    };
+	};
+
+	var ResponseError = function ResponseError(obj) {
+	    this.type = 'responseError';
+	    if (obj && (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object') {
+	        for (var name in obj) {
+	            this[name] = obj[name];
+	        }
+	    }
+	};
+
+	ResponseError.prototype = new Error();
+
+	ResponseError.prototype.constructor = ResponseError;
+
+	ResponseError.prototype.toString = function () {
+	    return this.message;
+	};
+
+	var ep = {
+	    packOut: function packOut(outdata) {
+	        var data = outdata;
+	        if (outdata && (typeof outdata === 'undefined' ? 'undefined' : _typeof(outdata)) === 'object' && outdata.unique === unique) {
+	            data = {
+	                error: outdata.error,
+	                data: null
+	            };
+	        } else {
+	            data = {
+	                error: null,
+	                data: outdata
+	            };
+	        }
+	        return out.packOut(data);
+	    },
+	    unpackOut: function unpackOut(rawOut) {
+	        var outdata = out.unpackOut(rawOut);
+	        if (outdata.error) {
+	            throw new ResponseError(outdata.error);
+	        } else {
+	            return outdata.data;
+	        }
+	    }
+	};
+
 	exports.default = {
 	    rcGet: new _processor2.default(rcGet),
 	    rcPost: new _processor2.default(rcPost),
-	    rc: new _processor2.default(rc)
+	    rc: new _processor2.default(rc),
+	    exception: exception,
+	    ep: new _processor2.default(ep)
 	};
 
 /***/ },

@@ -28,7 +28,9 @@ let out = {
  */
 let rcGet = {
     packIn: ({
-        options, apiName, ins
+        options,
+        apiName,
+        ins
     } = {}) => {
         let opts = def({
             headers: {},
@@ -37,7 +39,7 @@ let rcGet = {
         }, options);
         let query = queryName + '=' + JSON.stringify([apiName, ins]);
         opts.path = opts.path.indexOf('?') === -1 ?
-            (opts.path + '?' + query) :
+        (opts.path + '?' + query) :
             (opts.path + '&' + query);
         return {
             options: opts
@@ -58,7 +60,9 @@ let rcGet = {
  */
 let rcPost = {
     packIn: ({
-        options, apiName, ins
+        options,
+        apiName,
+        ins
     } = {}) => {
         return {
             options: def({
@@ -103,8 +107,85 @@ let rc = {
     unpackOut: out.unpackOut
 };
 
+/**
+ * api calling error processor
+ *
+ * 1. packOut. if out is an special exception object (not real exception), wrap data to a special json
+ *    {
+ *        error: null,
+ *        data: any
+ *    }
+ *    or
+ *    {
+ *        error: {
+ *            type: String,
+ *            message: String,
+ *            details: any
+ *        },
+ *        data: null
+ *    }
+ * 2. unpackOut. parse to the special json, if it's error type, throw it.
+ */
+let unique = {};
+
+let exception = (type, message, details) => {
+    return {
+        error: {
+            type,
+            message,
+            details
+        },
+        unique
+    };
+};
+
+let ResponseError = function (obj) {
+    this.type = 'responseError';
+    if (obj && typeof obj === 'object') {
+        for (let name in obj) {
+            this[name] = obj[name];
+        }
+    }
+};
+
+ResponseError.prototype = new Error();
+
+ResponseError.prototype.constructor = ResponseError;
+
+ResponseError.prototype.toString = function () {
+    return this.message;
+};
+
+let ep = {
+    packOut: (outdata) => {
+        let data = outdata;
+        if (outdata && typeof outdata === 'object' && outdata.unique === unique) {
+            data = {
+                error: outdata.error,
+                data: null
+            };
+        } else {
+            data = {
+                error: null,
+                data: outdata
+            };
+        }
+        return out.packOut(data);
+    },
+    unpackOut: (rawOut) => {
+        let outdata = out.unpackOut(rawOut);
+        if (outdata.error) {
+            throw new ResponseError(outdata.error);
+        } else {
+            return outdata.data;
+        }
+    }
+};
+
 export default {
     rcGet: new Processor(rcGet),
     rcPost: new Processor(rcPost),
-    rc: new Processor(rc)
+    rc: new Processor(rc),
+    exception,
+    ep: new Processor(ep)
 };

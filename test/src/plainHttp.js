@@ -1,6 +1,9 @@
 import assert from 'assert';
 import http from 'http';
-import { plainhttp } from '../../index';
+import {
+    plainhttp
+}
+from '../../index';
 require('babel-polyfill');
 
 let listen = (server, port) => new Promise((resolve) => {
@@ -22,8 +25,11 @@ let getReqBody = (req) => new Promise((r) => {
 });
 
 describe('plainhttp', () => {
-    it('base', async () => {
-        let {caller, mider} = plainhttp();
+    it('base', async() => {
+        let {
+            caller,
+            mider
+        } = plainhttp();
 
         let mid = mider(() => {
             return {
@@ -31,7 +37,7 @@ describe('plainhttp', () => {
             };
         });
 
-        let server = http.createServer(async (req, res) => {
+        let server = http.createServer(async(req, res) => {
             let body = await getReqBody(req);
             mid(req, res, body);
         });
@@ -46,18 +52,21 @@ describe('plainhttp', () => {
         assert.equal(res.body, 'hello world');
     });
 
-    it('rcGet', async () => {
-        let {caller, mider} = plainhttp({
+    it('rcGet', async() => {
+        let {
+            caller,
+            mider
+        } = plainhttp({
             processor: plainhttp.processors.rcGet
         });
 
         let mid = mider((ins) => {
-            if(ins[0] === 'add') {
+            if (ins[0] === 'add') {
                 return ins[1][0] + ins[1][1];
             }
         });
 
-        let server = http.createServer(async (req, res) => {
+        let server = http.createServer(async(req, res) => {
             let body = await getReqBody(req);
             mid(req, res, body);
         });
@@ -74,18 +83,21 @@ describe('plainhttp', () => {
         assert.equal(ret, 3);
     });
 
-    it('promise', async () => {
-        let {caller, mider} = plainhttp({
+    it('promise', async() => {
+        let {
+            caller,
+            mider
+        } = plainhttp({
             processor: plainhttp.processors.rcGet
         });
 
         let mid = mider((ins) => {
-            if(ins[0] === 'add') {
+            if (ins[0] === 'add') {
                 return Promise.resolve(ins[1][0] + ins[1][1]);
             }
         });
 
-        let server = http.createServer(async (req, res) => {
+        let server = http.createServer(async(req, res) => {
             let body = await getReqBody(req);
             mid(req, res, body);
         });
@@ -102,18 +114,21 @@ describe('plainhttp', () => {
         assert.equal(ret, 3);
     });
 
-    it('rcPost', async () => {
-        let {caller, mider} = plainhttp({
+    it('rcPost', async() => {
+        let {
+            caller,
+            mider
+        } = plainhttp({
             processor: plainhttp.processors.rcPost
         });
 
         let mid = mider((ins) => {
-            if(ins[0] === 'add') {
+            if (ins[0] === 'add') {
                 return ins[1][0] + ins[1][1];
             }
         });
 
-        let server = http.createServer(async (req, res) => {
+        let server = http.createServer(async(req, res) => {
             let body = await getReqBody(req);
             mid(req, res, body);
         });
@@ -130,18 +145,21 @@ describe('plainhttp', () => {
         assert.equal(ret, 70);
     });
 
-    it('rc', async () => {
-        let {caller, mider} = plainhttp({
+    it('rc', async() => {
+        let {
+            caller,
+            mider
+        } = plainhttp({
             processor: plainhttp.processors.rc
         });
 
         let mid = mider((ins) => {
-            if(ins[0] === 'add') {
+            if (ins[0] === 'add') {
                 return ins[1][0] + ins[1][1];
             }
         });
 
-        let server = http.createServer(async (req, res) => {
+        let server = http.createServer(async(req, res) => {
             let body = await getReqBody(req);
             mid(req, res, body);
         });
@@ -158,17 +176,23 @@ describe('plainhttp', () => {
         assert.equal(ret, -20);
     });
 
-    it('midForm', async () => {
-        let {caller, mider} = plainhttp({
+    it('midForm', async() => {
+        let {
+            caller,
+            mider
+        } = plainhttp({
             processor: plainhttp.processors.rc,
-            midForm: (dealer, flusher) => async (req, res) => {
+            midForm: (dealer, flusher) => async(req, res) => {
                 let body = await getReqBody(req);
-                return dealer({ req, body}, flusher(res));
+                return dealer({
+                    req,
+                    body
+                }, flusher(res));
             }
         });
 
         let mid = mider((ins) => {
-            if(ins[0] === 'add') {
+            if (ins[0] === 'add') {
                 return ins[1][0] + ins[1][1];
             }
         });
@@ -186,5 +210,75 @@ describe('plainhttp', () => {
             ins: [10, -30]
         });
         assert.equal(ret, -20);
+    });
+
+    it('ep: normal', async() => {
+        let {
+            caller,
+            mider
+        } = plainhttp({
+            processor: plainhttp.processors.ep.pack(plainhttp.processors.rc)
+        });
+
+        let mid = mider((ins) => {
+            if (ins[0] === 'add') {
+                return ins[1][0] + ins[1][1];
+            }
+        });
+
+        let server = http.createServer(async(req, res) => {
+            let body = await getReqBody(req);
+            mid(req, res, body);
+        });
+        await listen(server, 0);
+
+        let ret = await caller({
+            options: {
+                hostname: '127.0.0.1',
+                port: server.address().port
+            },
+            apiName: 'add',
+            ins: [10, -30]
+        });
+        assert.equal(ret, -20);
+    });
+
+    it('ep: exception', async() => {
+        let {
+            caller,
+            mider
+        } = plainhttp({
+            processor: plainhttp.processors.ep.pack(plainhttp.processors.rc)
+        });
+
+        let mid = mider((ins) => {
+            if (ins[0] === 'add') {
+		// return special exception
+                return plainhttp.processors.exception('mytype', 'some message', {
+                    d: 2
+                });
+            }
+        });
+
+        let server = http.createServer(async(req, res) => {
+            let body = await getReqBody(req);
+            mid(req, res, body);
+        });
+        await listen(server, 0);
+
+        try {
+            await caller({
+                options: {
+                    hostname: '127.0.0.1',
+                    port: server.address().port
+                },
+                apiName: 'add',
+                ins: [10, -30]
+            });
+        } catch (err) {
+            assert.equal(err.type, 'mytype');
+            assert.equal(err.message, 'some message');
+            assert.equal(err.details.d, 2);
+        }
     });
 });
