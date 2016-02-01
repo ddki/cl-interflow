@@ -43,4 +43,23 @@ describe('rloader', () => {
         let ret = await testFun(14, 12);
         assert.equal(ret, 26);
     });
+
+    it('prop', async() => {
+        let server = http.createServer(async(req, res) => {
+            let body = await getReqBody(req);
+            mid(req, res, body);
+        });
+        await listen(server, 0);
+        let {
+            mid, load
+        } = rloader({
+            root: __dirname
+        });
+
+        let test = load('../fixture/loader-test.js', {
+            port: server.address().port
+        });
+        let ret = await test.prop('mul')(14, 12);
+        assert.equal(14 * 12, ret);
+    });
 });

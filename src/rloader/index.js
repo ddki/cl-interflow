@@ -76,7 +76,7 @@ module.exports = (opts = {}) => {
             return processors.exception('missing api', 'api filepath does not exist.', {
                 filePath
             });
-        let arr = filePath.split('$');
+        let arr = apiPath.split('$');
         arr.shift();
         let apiMethod = getApiMethod(apiObj, arr);
 
