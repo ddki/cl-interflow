@@ -1,3 +1,6 @@
+/**
+ * TODO support koa mid directly
+ */
 import requestor from 'cl-requestor';
 import getProcessor from './getProcessor';
 import processors from './processors';

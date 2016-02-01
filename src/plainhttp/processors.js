@@ -126,7 +126,7 @@ let rc = {
  *    }
  * 2. unpackOut. parse to the special json, if it's error type, throw it.
  */
-let unique = {};
+let unique = 'efd669e1-d93b-49dd-8ba5-9425ceb893f9';
 
 let exception = (type, message, details) => {
     return {

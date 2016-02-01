@@ -624,7 +624,7 @@ this["ajaxCaller"] =
 	 *    }
 	 * 2. unpackOut. parse to the special json, if it's error type, throw it.
 	 */
-	var unique = {};
+	var unique = 'efd669e1-d93b-49dd-8ba5-9425ceb893f9';
 
 	var exception = function exception(type, message, details) {
 	    return {

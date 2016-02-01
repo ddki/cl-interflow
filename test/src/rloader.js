@@ -1,7 +1,7 @@
 import assert from 'assert';
 import http from 'http';
 import {
-    plainhttp
+    rloader
 }
 from '../../index';
 require('babel-polyfill');
@@ -26,29 +26,21 @@ let getReqBody = (req) => new Promise((r) => {
 
 describe('rloader', () => {
     it('base', async() => {
-        let {
-            caller,
-            mider
-        } = plainhttp();
-
-        let mid = mider(() => {
-            return {
-                body: 'hello world'
-            };
-        });
-
         let server = http.createServer(async(req, res) => {
             let body = await getReqBody(req);
             mid(req, res, body);
         });
         await listen(server, 0);
-
-        let res = await caller({
-            options: {
-                hostname: '127.0.0.1',
-                port: server.address().port
-            }
+        let {
+            mid, load
+        } = rloader({
+            root: __dirname
         });
-        assert.equal(res.body, 'hello world');
+
+        let testFun = load('../fixture/loader-test.js', {
+            port: server.address().port
+        });
+        let ret = await testFun(14, 12);
+        assert.equal(ret, 26);
     });
 });
