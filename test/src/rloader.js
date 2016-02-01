@@ -53,13 +53,33 @@ describe('rloader', () => {
         let {
             mid, load
         } = rloader({
+            reqOptions: {
+                port: server.address().port
+            },
             root: __dirname
         });
 
-        let test = load('../fixture/loader-test.js', {
-            port: server.address().port
-        });
+        let test = load('../fixture/loader-test.js');
         let ret = await test.prop('mul')(14, 12);
         assert.equal(14 * 12, ret);
+    });
+    it('deep prop', async() => {
+        let server = http.createServer(async(req, res) => {
+            let body = await getReqBody(req);
+            mid(req, res, body);
+        });
+        await listen(server, 0);
+        let {
+            mid, load
+        } = rloader({
+            reqOptions: {
+                port: server.address().port
+            },
+            root: __dirname
+        });
+
+        let test = load('../fixture/loader-test.js');
+        let ret = await test.prop('mul').prop('next')(14, 2);
+        assert.equal(7, ret);
     });
 });

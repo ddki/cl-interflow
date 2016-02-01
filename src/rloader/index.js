@@ -2,6 +2,7 @@ import plainhttp from '../plainhttp';
 import path from 'path';
 
 let processors = plainhttp.processors;
+let defProcessor = processors.ep.pack(processors.rc);
 /**
  * remote loader
  *
@@ -36,16 +37,21 @@ let getApiMethod = (apiObj, acts) => {
         let act = acts[i].trim();
         if (act) {
             if (act[0] === '.') {
-                if (!apiObj)
+                if (!apiMethod)
                     return null;
-                apiMethod = apiObj[act.substring(1)];
+                apiMethod = apiMethod[act.substring(1)];
             }
         }
     }
     return apiMethod;
 };
 
-let defProcessor = processors.ep.pack(processors.rc);
+let assign = (init={}, next={}) => {
+    for(let name in next) {
+        init[name] = next[name];
+    }
+    return init;
+};
 
 module.exports = (opts = {}) => {
     let processor = opts.processor || defProcessor;
@@ -90,6 +96,7 @@ module.exports = (opts = {}) => {
     let mid = mider(method);
 
     let load = (p, options = {}) => {
+        options = assign(options, opts.reqOptions);
         let req = (...ins) => {
             return caller({
                 options,
