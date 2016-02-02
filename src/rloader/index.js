@@ -33,18 +33,6 @@ let requireJs = (filePath) => {
     }
 };
 
-let getRet = (apiPath, apiObj, args) => {
-    let arr = apiPath.split('$');
-    arr.shift();
-    let apiMethod = getApiMethod(apiObj, arr);
-
-    if (typeof apiMethod === 'function') {
-        return apiMethod.apply(this, args);
-    } else {
-        return apiMethod;
-    }
-};
-
 let getApiMethod = (apiObj, acts) => {
     let apiMethod = apiObj;
     for (let i = 0; i < acts.length; i++) {
@@ -103,7 +91,17 @@ module.exports = (opts = {}) => {
             return processors.exception('missing api', 'api filepath does not exist.', {
                 filePath
             });
-        return getRet(apiPath, apiObj, args);
+        let arr = apiPath.split('$');
+        arr.shift();
+        let apiMethod = getApiMethod(apiObj, arr);
+
+        if (typeof apiMethod === 'function') {
+            // use this as context
+            return apiMethod.apply(this, args);
+        } else {
+            return apiMethod;
+        }
+
     };
 
     let mid = mider(proxy(method));
@@ -112,9 +110,9 @@ module.exports = (opts = {}) => {
         options = assign(options, opts.reqOptions);
         let req = (...ins) => {
             return caller({
+                ins,
                 options,
-                apiName: p,
-                ins
+                apiName: p
             });
         };
 
