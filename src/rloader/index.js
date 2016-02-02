@@ -31,6 +31,18 @@ let requireJs = (filePath) => {
     }
 };
 
+let getRet = (apiPath, apiObj, args) => {
+    let arr = apiPath.split('$');
+    arr.shift();
+    let apiMethod = getApiMethod(apiObj, arr);
+
+    if (typeof apiMethod === 'function') {
+        return apiMethod.apply(this, args);
+    } else {
+        return apiMethod;
+    }
+};
+
 let getApiMethod = (apiObj, acts) => {
     let apiMethod = apiObj;
     for (let i = 0; i < acts.length; i++) {
@@ -46,8 +58,8 @@ let getApiMethod = (apiObj, acts) => {
     return apiMethod;
 };
 
-let assign = (init={}, next={}) => {
-    for(let name in next) {
+let assign = (init = {}, next = {}) => {
+    for (let name in next) {
         init[name] = next[name];
     }
     return init;
@@ -82,15 +94,7 @@ module.exports = (opts = {}) => {
             return processors.exception('missing api', 'api filepath does not exist.', {
                 filePath
             });
-        let arr = apiPath.split('$');
-        arr.shift();
-        let apiMethod = getApiMethod(apiObj, arr);
-
-        if (typeof apiMethod !== 'function') {
-            return processors.exception('missing api', 'api method is not a function');
-        }
-
-        return apiMethod.apply(this, args);
+        return getRet(apiPath, apiObj, args);
     };
 
     let mid = mider(method);
@@ -105,7 +109,6 @@ module.exports = (opts = {}) => {
             });
         };
 
-        // TODO sub options
         req.get = req.prop = (name) => {
             let newPath = joinAct(p, '.' + name);
             return load(newPath, options);
