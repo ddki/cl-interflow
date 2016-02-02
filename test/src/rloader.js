@@ -128,4 +128,30 @@ describe('rloader', () => {
             done();
         }
     });
+
+    it('proxy', async() => {
+        let server = http.createServer(async(req, res) => {
+            let body = await getReqBody(req);
+            mid(req, res, body);
+        });
+        await listen(server, 0);
+        let {
+            mid, load
+        } = rloader({
+            reqOptions: {
+                port: server.address().port
+            },
+            root: __dirname,
+            proxy: (method) => {
+                return async(ins) => {
+                    let res = await method(ins);
+                    return 2 * res;
+                };
+            }
+        });
+
+        let test = load('../fixture/loader-test.js');
+        let ret = await test(2, 3);
+        assert.equal(ret, 10);
+    });
 });

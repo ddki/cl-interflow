@@ -17,6 +17,8 @@ let defProcessor = processors.ep.pack(processors.rc);
  * TODO: api combination
  */
 
+let id = v => v;
+
 let joinAct = (p, act) => {
     if (p.indexOf('?') === -1)
         p = p + '?';
@@ -65,10 +67,17 @@ let assign = (init = {}, next = {}) => {
     return init;
 };
 
+/**
+ * opts
+ *      safeDir
+ *      root
+ *      proxy
+ */
 module.exports = (opts = {}) => {
     let processor = opts.processor || defProcessor;
     opts.processor = processor;
 
+    let proxy = opts.proxy || id;
     let root = opts.root || '.';
     let safeDir = opts.safeDir;
     let {
@@ -97,7 +106,7 @@ module.exports = (opts = {}) => {
         return getRet(apiPath, apiObj, args);
     };
 
-    let mid = mider(method);
+    let mid = mider(proxy(method));
 
     let load = (p, options = {}) => {
         options = assign(options, opts.reqOptions);
