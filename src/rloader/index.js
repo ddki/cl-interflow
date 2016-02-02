@@ -101,7 +101,6 @@ module.exports = (opts = {}) => {
         } else {
             return apiMethod;
         }
-
     };
 
     let mid = mider(proxy(method));

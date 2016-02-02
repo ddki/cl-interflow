@@ -84,7 +84,7 @@ let dealer = (unpackIn = id, packOut = id) => {
         return (rawIn, flush) => new Promise((resolve, reject) => {
             let ins = unpackIn(rawIn);
             // method may be async
-            let out = method(ins);
+            let out = method(ins, rawIn);
 
             if(isPromise(out)) {
                 out.then((ret) => {

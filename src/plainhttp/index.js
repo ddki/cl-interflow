@@ -23,6 +23,10 @@ let stdMidForm = (dealer, flusher) => (req, res, body) => dealer({
     req, body
 }, flusher(res));
 
+// TODO wipe protocol.js and wipe class by function
+let originMidForm = (processor, method) => (req, res, body) => {
+   let ins = processor.unpackIn({req, body}); 
+}
 /**
  * opts = {
  *     type : http | https,

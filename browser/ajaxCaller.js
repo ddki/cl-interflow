@@ -424,7 +424,7 @@ this["ajaxCaller"] =
 	            return new Promise(function (resolve, reject) {
 	                var ins = unpackIn(rawIn);
 	                // method may be async
-	                var out = method(ins);
+	                var out = method(ins, rawIn);
 
 	                if (isPromise(out)) {
 	                    out.then(function (ret) {
