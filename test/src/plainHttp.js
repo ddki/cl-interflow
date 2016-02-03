@@ -231,7 +231,8 @@ describe('plainhttp', () => {
         let ret = await caller({
             options: {
                 hostname: '127.0.0.1',
-                port: server.address().port
+                port: server.address().port,
+                method: 'POST'
             },
             apiName: 'add',
             ins: [10, -30]
@@ -274,6 +275,7 @@ describe('plainhttp', () => {
         } catch (err) {
             assert.equal(err.type, 'mytype');
             assert.equal(err.message, 'some message');
+            assert.equal(err.toString(), 'some message');
             assert.equal(err.details.d, 2);
         }
     });

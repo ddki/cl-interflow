@@ -129,6 +129,50 @@ describe('rloader', () => {
         }
     });
 
+    it('null: does no exists', async() => {
+        let server = http.createServer(async(req, res) => {
+            let body = await getReqBody(req);
+            mid(req, res, body);
+        });
+        await listen(server, 0);
+        let {
+            mid, load
+        } = rloader({
+            reqOptions: {
+                port: server.address().port
+            },
+            root: __dirname
+        });
+
+        let test = load('../fixture/loader-test.js');
+        let ret = await test.prop('obj').prop('fake').get('fake2')();
+        assert.equal(ret, null);
+    });
+
+    it('safeDir', async(done) => {
+        let server = http.createServer(async(req, res) => {
+            let body = await getReqBody(req);
+            mid(req, res, body);
+        });
+        await listen(server, 0);
+        let {
+            mid, load
+        } = rloader({
+            reqOptions: {
+                port: server.address().port
+            },
+            safeDir: __dirname
+        });
+
+        let test = load('../fixture/loader-test.js');
+        try {
+            await test.prop('obj')();
+        } catch (err) {
+            assert.equal(err.type, 'no permission');
+            done();
+        }
+    });
+
     it('proxy', async() => {
         let server = http.createServer(async(req, res) => {
             let body = await getReqBody(req);
