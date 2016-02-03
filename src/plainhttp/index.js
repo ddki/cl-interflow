@@ -30,10 +30,43 @@ let originMidForm = (processor, method) => (req, res, body) => {
     });
 };
 
+/**
+ * please hang out request body at this.request
+ */
+let koaMidForm = (processor, method) => function*() {
+    let self = this;
+    let {
+        unpackIn, packOut
+    } = processor;
+
+    return new Promise((resolve, reject) => {
+        let ins = unpackIn({
+            req: self.req,
+            body: self.request.body
+        });
+        let out = method(ins, self);
+        out = wrapValue(out);
+        out.then((outv) => {
+            let rawout = packOut(outv);
+            let headers = rawout.headers;
+            if (headers) {
+                for(let name in headers) {
+                    self.set(name, headers[name]);
+                }
+            }
+            self.body = rawout.body;
+            //
+            resolve(rawout);
+        }).catch((err) => reject(err));
+    });
+
+};
 
 let getCaller = (processor, connect) => {
-    let {packIn, unpackOut} = processor;
-    return (ins) => new Promise ((resolve, reject) => {
+    let {
+        packIn, unpackOut
+    } = processor;
+    return (ins) => new Promise((resolve, reject) => {
         let rawIns = packIn(ins);
         let rawout = connect(rawIns);
         rawout = wrapValue(rawout);
@@ -71,7 +104,9 @@ let isPromise = v => v && typeof v === 'object' && typeof v.then === 'function';
  */
 let plainhttp = (opts = {}) => {
     let midForm = opts.midForm || originMidForm;
-    if(typeof midForm !== 'function') {
+    if(midForm === 'koaMidForm')
+        midForm = koaMidForm;
+    if (typeof midForm !== 'function') {
         throw new Error('Expect function for midForm');
     }
     let processor = getProcessor(opts);
@@ -87,7 +122,7 @@ let plainhttp = (opts = {}) => {
     let connect = (rawIn) => request(rawIn.options, rawIn.body);
 
     // get caller
-    let caller =  getCaller(processor, connect);
+    let caller = getCaller(processor, connect);
 
     // builde mider
     let mider = (method) => midForm(processor, method);

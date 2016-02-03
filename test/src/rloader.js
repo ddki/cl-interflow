@@ -1,3 +1,4 @@
+import koa from 'koa';
 import assert from 'assert';
 import http from 'http';
 import {
@@ -197,5 +198,35 @@ describe('rloader', () => {
         let test = load('../fixture/loader-test.js');
         let ret = await test(2, 3);
         assert.equal(ret, 10);
+    });
+
+    it('koa mid', async() => {
+        let {
+            mid, load
+        } = rloader({
+            root: __dirname,
+            midForm: 'koaMidForm'
+        });
+
+        const app = koa();
+
+        app.use(function*(next) {
+            this.request.body =
+                yield getReqBody(this.req);
+            yield next;
+        });
+
+        app.use(mid);
+
+        let server = http.createServer(app.callback());
+
+        await listen(server, 0);
+
+        let test = load('../fixture/loader-test.js', {
+            port: server.address().port,
+            method: 'POST'
+        });
+        let ret = await test(2, 3);
+        assert.equal(ret, 5);
     });
 });

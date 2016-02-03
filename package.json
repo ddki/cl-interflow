@@ -22,6 +22,7 @@
     "gulp-babel": "^6.1.1",
     "gulp-util": "^3.0.7",
     "istanbul": "^0.4.1",
+    "koa": "^1.1.2",
     "mocha": "^2.3.4",
     "run-sequence": "^1.1.5",
     "webpack": "^1.12.9"
