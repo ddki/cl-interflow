@@ -1,0 +1,23 @@
+<!--
+start server (see server.js) and visit http://127.0.0.1:9000/ 
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>rloader</title>
+</head>
+<body>
+    <h1>test for rloader</h1>
+    <h2>2 + 4 = <span id='addResult'></span></h2>
+    <script src="../../../browser/rloader.js"></script>
+    <script>
+        var ac = window.ajaxCaller;
+        var load = ac({reqOptions: {port: 9000}}).load;
+        var test = load('test.js');
+        test.prop('add')(2, 4).then(function(v) {
+            document.getElementById('addResult').innerHTML = v;
+        })
+    </script>
+</body>
+</html>

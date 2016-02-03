@@ -45,8 +45,87 @@ this["ajaxCaller"] =
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(1);
+	'use strict';
 
+	var _ajaxCaller = __webpack_require__(1);
+
+	var _ajaxCaller2 = _interopRequireDefault(_ajaxCaller);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var processors = _ajaxCaller2.default.processors;
+	var defProcessor = processors.ep.pack(processors.rc);
+	/**
+	 * remote loader
+	 *
+	 * load remote js module like loading them at same end.
+	 *
+	 * let user = load('method/user.js');
+	 *
+	 * await user.get('login')(userName, password);
+	 *
+	 * apiName: method/user.js?$.login
+	 *
+	 */
+
+	var joinAct = function joinAct(p, act) {
+	    if (p.indexOf('?') === -1) p = p + '?';
+	    return p + '$' + act;
+	};
+
+	var assign = function assign() {
+	    var init = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	    var next = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+	    for (var name in next) {
+	        init[name] = next[name];
+	    }
+	    return init;
+	};
+
+	/**
+	 * opts
+	 *      safeDir
+	 *      root
+	 *      proxy
+	 */
+	module.exports = function () {
+	    var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+	    var processor = opts.processor || defProcessor;
+	    opts.processor = processor;
+
+	    var _plainhttp = (0, _ajaxCaller2.default)(opts);
+
+	    var caller = _plainhttp.caller;
+
+	    var load = function load(p) {
+	        var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+	        options = assign(options, opts.reqOptions);
+	        var req = function req() {
+	            for (var _len = arguments.length, ins = Array(_len), _key = 0; _key < _len; _key++) {
+	                ins[_key] = arguments[_key];
+	            }
+
+	            return caller({
+	                ins: ins,
+	                options: options,
+	                apiName: p
+	            });
+	        };
+
+	        req.get = req.prop = function (name) {
+	            var newPath = joinAct(p, '.' + name);
+	            return load(newPath, options);
+	        };
+	        return req;
+	    };
+
+	    return {
+	        load: load
+	    };
+	};
 
 /***/ },
 /* 1 */

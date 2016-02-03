@@ -5,14 +5,14 @@ start server (see server.js) and visit http://127.0.0.1:9000/
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ajaxCaller</title>
+    <title>rloader</title>
 </head>
 <body>
-    <h1>test for quichHttp</h1>
+    <h1>test for rloader</h1>
     <h2>2 + 4 = <span id='addResult'></span></h2>
     <script src="../../../browser/ajaxCaller.js"></script>
     <script>
-        var ac = window.ajaxCaller.default;
+        var ac = window.ajaxCaller;
         var caller = ac({
             processor: ac.processors.rc
         }).caller;

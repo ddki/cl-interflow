@@ -2,7 +2,8 @@ var path = require('path');
 
 module.exports = {
     entry: {
-        'ajaxCaller': path.join(__dirname, '../src/plainhttp/ajaxCaller.js')
+        'ajaxCaller':[path.join(__dirname, '../src/plainhttp/ajaxCaller.js')],
+        'rloader': path.join(__dirname, '../src/rloader/ajaxCaller.js')
     },
     output: {
         path: path.join(__dirname, '../browser'),

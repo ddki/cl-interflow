@@ -5,33 +5,59 @@ import requestor from 'cl-requestor';
 import getProcessor from './getProcessor';
 import processors from './processors';
 
-/**
- * rawOut = {
- *     headers,
- *     body
- * }
- */
-let stdFlusher = (res) => (out) => {
-    if (out.headers) {
-        res.writeHead(200, out.headers);
-    }
-    //
-    res.end(out.body);
+let originMidForm = (processor, method) => (req, res, body) => {
+    let {
+        unpackIn, packOut
+    } = processor;
+    let $ = {
+        req, res, body
+    };
+    return new Promise((resolve, reject) => {
+        let ins = unpackIn({
+            req, body
+        });
+        let out = method(ins, $);
+        out = wrapValue(out);
+        out.then((outv) => {
+            let rawout = packOut(outv);
+            if (rawout.headers) {
+                res.writeHead(200, rawout.headers);
+            }
+            //
+            res.end(rawout.body);
+            resolve(rawout);
+        }).catch((err) => reject(err));
+    });
 };
 
-let stdMidForm = (dealer, flusher) => (req, res, body) => dealer({
-    req, body
-}, flusher(res));
 
-// TODO wipe protocol.js and wipe class by function
-let originMidForm = (processor, method) => (req, res, body) => {
-   let ins = processor.unpackIn({req, body}); 
-}
+let getCaller = (processor, connect) => {
+    let {packIn, unpackOut} = processor;
+    return (ins) => new Promise ((resolve, reject) => {
+        let rawIns = packIn(ins);
+        let rawout = connect(rawIns);
+        rawout = wrapValue(rawout);
+        rawout.then(rawoutv => {
+            let out = unpackOut(rawoutv);
+            resolve(out);
+        }).catch(err => reject(err));
+    });
+};
+
+let wrapValue = v => {
+    if (isPromise(v)) {
+        return v;
+    } else {
+        return Promise.resolve(v);
+    }
+};
+
+let isPromise = v => v && typeof v === 'object' && typeof v.then === 'function';
+
 /**
  * opts = {
  *     type : http | https,
  *     processor,
- *     flusher, // define how to response data
  *     midForm, // define middleware form
  *     lowProcessor
  * }
@@ -40,13 +66,14 @@ let originMidForm = (processor, method) => (req, res, body) => {
  *
  * lowProcessor = new Processor({ packIn, unpackIn, packOut, unPackout })
  *
- * flusher::: (...) -> rawOut -> ...
+ * midForm ::: (processor, method) -> mid
  *
- * midForm::: (dealer, flusher) -> (...) -> ...
  */
 let plainhttp = (opts = {}) => {
-    let flusher = opts.flusher || stdFlusher;
-    let midForm = opts.midForm || stdMidForm;
+    let midForm = opts.midForm || originMidForm;
+    if(typeof midForm !== 'function') {
+        throw new Error('Expect function for midForm');
+    }
     let processor = getProcessor(opts);
     //
     let request = requestor(opts.type);
@@ -60,13 +87,10 @@ let plainhttp = (opts = {}) => {
     let connect = (rawIn) => request(rawIn.options, rawIn.body);
 
     // get caller
-    let caller = processor.getCaller(connect);
+    let caller =  getCaller(processor, connect);
 
     // builde mider
-    let mider = (method) => {
-        let dealer = processor.getDealer(method);
-        return midForm(dealer, flusher);
-    };
+    let mider = (method) => midForm(processor, method);
 
     return {
         caller,
@@ -76,4 +100,5 @@ let plainhttp = (opts = {}) => {
 
 plainhttp.processors = processors;
 
-export default plainhttp;
+export
+default plainhttp;

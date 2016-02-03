@@ -1,5 +1,3 @@
-import protocol from './protocol';
-
 let id = v => v;
 
 let Processor = function ({ packIn, unpackIn, packOut, unpackOut } = {}) {
@@ -23,12 +21,6 @@ Processor.prototype = {
     getUnpackOut: function () {
         return this.unpackOut;
     },
-    getCaller: function (connect) {
-        return protocol.caller(this.getPackIn(), this.getUnpackOut())(connect);
-    },
-    getDealer: function (method) {
-        return protocol.dealer(this.getUnpackIn(), this.getPackOut())(method);
-    },
     // the way to compose processor
     pack: function (processor) {
         let packIn = compose(processor.getPackIn(), this.getPackIn());
@@ -45,6 +37,7 @@ Processor.prototype = {
         });
     }
 };
+
 
 let compose = (f1, f2) => (...xs) => f1(f2.apply(undefined, xs));
 

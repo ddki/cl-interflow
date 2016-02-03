@@ -6,6 +6,29 @@ import browserRequestor from '../util/browserRequestor';
 import getProcessor from './getProcessor';
 import processors from './processors';
 
+let wrapValue = v => {
+    if (isPromise(v)) {
+        return v;
+    } else {
+        return Promise.resolve(v);
+    }
+};
+
+let isPromise = v => v && typeof v === 'object' && typeof v.then === 'function';
+
+let getCaller = (processor, connect) => {
+    let {packIn, unpackOut} = processor;
+    return (ins) => new Promise ((resolve, reject) => {
+        let rawIns = packIn(ins);
+        let rawout = connect(rawIns);
+        rawout = wrapValue(rawout);
+        rawout.then(rawoutv => {
+            let out = unpackOut(rawoutv);
+            resolve(out);
+        }).catch(err => reject(err));
+    });
+};
+
 /**
  * opts = {
  *     processor,
@@ -30,7 +53,7 @@ let plainhttp = (opts = {}) => {
     let connect = (rawIn) => request(rawIn.options, rawIn.body);
 
     // get caller
-    let caller = processor.getCaller(connect);
+    let caller = getCaller(processor, connect);
 
     return {
         caller
@@ -39,4 +62,4 @@ let plainhttp = (opts = {}) => {
 
 plainhttp.processors = processors;
 
-export default plainhttp;
+module.exports = plainhttp;

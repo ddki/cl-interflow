@@ -182,34 +182,30 @@ describe('plainhttp', () => {
             mider
         } = plainhttp({
             processor: plainhttp.processors.rc,
-            midForm: (dealer, flusher) => async(req, res) => {
-                let body = await getReqBody(req);
-                return dealer({
-                    req,
-                    body
-                }, flusher(res));
+            midForm: (processor) => (req, res) => {
+                let body = 'hello world!';
+                let out = processor.packOut(body);
+                res.end(out.body);
             }
         });
 
-        let mid = mider((ins) => {
-            if (ins[0] === 'add') {
-                return ins[1][0] + ins[1][1];
-            }
-        });
+        let mid = mider();
 
-        let server = http.createServer(mid);
+        let server = http.createServer(async(req, res) => {
+            let body = await getReqBody(req);
+            mid(req, res, body);
+        });
         await listen(server, 0);
 
         let ret = await caller({
             options: {
                 hostname: '127.0.0.1',
-                method: 'POST',
                 port: server.address().port
             },
             apiName: 'add',
             ins: [10, -30]
         });
-        assert.equal(ret, -20);
+        assert.equal(ret, 'hello world!');
     });
 
     it('ep: normal', async() => {
@@ -253,7 +249,7 @@ describe('plainhttp', () => {
 
         let mid = mider((ins) => {
             if (ins[0] === 'add') {
-		// return special exception
+                // return special exception
                 return plainhttp.processors.exception('mytype', 'some message', {
                     d: 2
                 });
