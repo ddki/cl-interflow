@@ -1,6 +1,6 @@
 {
   "name": "cl-interflow",
-  "version": "0.2.7",
+  "version": "0.3.0",
   "description": "Define A Simple Protocol For Interflow Based On Function.",
   "main": "index.js",
   "dependencies": {
@@ -36,9 +36,10 @@
   },
   "keywords": [
     "interflow",
-    "function",
     "caller",
-    "dealer"
+    "dealer",
+    "middleware",
+    "loader"
   ],
   "author": "ddchen",
   "license": "MIT",
