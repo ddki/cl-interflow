@@ -1,6 +1,6 @@
 {
   "name": "cl-interflow",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Define A Simple Protocol For Interflow Based On Function.",
   "main": "index.js",
   "dependencies": {
