@@ -1,5 +1,5 @@
 /**
- * TODO support koa mid directly
+ * TODO getCaller support return raw data and support mutiple data ( raw data, pack data)
  */
 import requestor from 'cl-requestor';
 import getProcessor from './getProcessor';
@@ -39,9 +39,9 @@ let koaMidForm = (processor, method) => function*() {
         unpackIn, packOut
     } = processor;
 
-    return new Promise((resolve, reject) => {
+    return yield new Promise((resolve, reject) => {
         let ins = unpackIn({
-            req: self.req,
+            req: self.request,
             body: self.request.body
         });
         let out = method(ins, self);
@@ -59,7 +59,6 @@ let koaMidForm = (processor, method) => function*() {
             resolve(rawout);
         }).catch((err) => reject(err));
     });
-
 };
 
 let getCaller = (processor, connect) => {

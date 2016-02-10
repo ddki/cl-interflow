@@ -72,9 +72,9 @@ module.exports = (opts = {}) => {
         mider, caller
     } = plainhttp(opts);
 
-    let method = function (ins) {
-        let apiPath = ins[0];
-        let args = ins[1];
+    let method = function (ins, ctx) {
+        let apiPath = ins[0] || '';
+        let args = ins[1] || [];
         // find method file and method
         let filePath = apiPath.split('?')[0];
         filePath = path.normalize(path.join(root, filePath));
@@ -88,7 +88,7 @@ module.exports = (opts = {}) => {
         //
         let apiObj = requireJs(filePath);
         if (!apiObj)
-            return processors.exception('missing api', 'api filepath does not exist.', {
+            return processors.exception('missing api', 'api filepath does not exist.' + filePath, {
                 filePath
             });
         let arr = apiPath.split('$');
@@ -97,7 +97,7 @@ module.exports = (opts = {}) => {
 
         if (typeof apiMethod === 'function') {
             // use this as context
-            return apiMethod.apply(this, args);
+            return apiMethod.apply(ctx, args);
         } else {
             return apiMethod;
         }

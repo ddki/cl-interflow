@@ -200,6 +200,27 @@ describe('rloader', () => {
         assert.equal(ret, 10);
     });
 
+    it('promise', async() => {
+        let server = http.createServer(async(req, res) => {
+            let body = await getReqBody(req);
+            mid(req, res, body);
+        });
+        await listen(server, 0);
+        let {
+            mid, load
+        } = rloader({
+            reqOptions: {
+                port: server.address().port
+            },
+            root: __dirname
+        });
+
+        let test = load('../fixture/loader-test.js');
+        let ret = await test.prop('addp')(7, 3);
+        assert.equal(ret, 10);
+    });
+
+
     it('koa mid', async() => {
         let {
             mid, load
@@ -229,4 +250,56 @@ describe('rloader', () => {
         let ret = await test(2, 3);
         assert.equal(ret, 5);
     });
+
+    it('koa promise', async() => {
+        let {
+            mid, load
+        } = rloader({
+            root: __dirname,
+            midForm: 'koaMidForm'
+        });
+
+        const app = koa();
+
+        app.use(mid);
+
+        let server = http.createServer(app.callback());
+
+        await listen(server, 0);
+
+        let test = load('../fixture/loader-test.js', {
+            port: server.address().port
+        });
+        let ret = await test.prop('addp')(2, 3);
+        assert.equal(ret, 5);
+    });
+
+    it('ctx', async() => {
+        let {
+            mid, load
+        } = rloader({
+            root: __dirname,
+            midForm: 'koaMidForm'
+        });
+
+        const app = koa();
+
+        app.use(function*(next) {
+            this.test_var = 100;
+            yield next;
+        });
+
+        app.use(mid);
+
+        let server = http.createServer(app.callback());
+
+        await listen(server, 0);
+
+        let test = load('../fixture/loader-test.js', {
+            port: server.address().port
+        });
+        let ret = await test.prop('testCtx')();
+        assert.equal(ret, 100);
+    });
+
 });
