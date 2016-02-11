@@ -33,6 +33,7 @@ let requireJs = (filePath) => {
     }
 };
 
+// TODO support babel default
 let getApiMethod = (apiObj, acts) => {
     let apiMethod = apiObj;
     for (let i = 0; i < acts.length; i++) {
